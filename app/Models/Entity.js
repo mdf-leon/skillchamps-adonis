@@ -5,6 +5,13 @@ const Model = use('Model')
 
 class Entity extends Model {
     
+    rider() {
+        return this.hasOne('App/Models/Rider')
+    }
+
+    institute() {
+        return this.hasOne('App/Models/Institute')
+    }
 
     // entitytag () {
     //     return this.hasMany('App/Models/EntityTag')

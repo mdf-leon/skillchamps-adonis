@@ -3,18 +3,16 @@
 /** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
 const Model = use('Model')
 
-class Rider extends Model {
+class Institute extends Model {
 
-    users () {
+    user(){
         return this.belongsTo('App/Models/User')
-        //.pivotTable('user_entity')
     }
 
-    entity () {
+    entity(){
         return this.belongsTo('App/Models/Entity')
-        //.pivotTable('user_entity')
     }
-
+    
 }
 
-module.exports = Rider
+module.exports = Institute

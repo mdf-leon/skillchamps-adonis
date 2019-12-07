@@ -4,14 +4,15 @@
 const Schema = use('Schema')
 
 class RiderSchema extends Schema {
-  up () {
+  up() {
     this.create('riders', (table) => {
       table.increments()
+      table.string('name', 80)
+
 
       //table.integer('entities_id').references('entities.id')
       //table.integer('entity_id').notNullable().unsigned().
       //references('entities.id').onDelete('cascade').index('entity_id')
-      table.string('age')
       table.date('date_of_birth')
       //table.integer('categories_id').references('categories.id')
       //table.integer('category_id').notNullable().unsigned().
@@ -20,8 +21,8 @@ class RiderSchema extends Schema {
       table.string('motorcycle_plate')
       table.string('license_ido')
       //table.string('id_number').unique() // numero ou str?
-      
-      table.integer('user_id') // FK
+
+      table.integer('user_id').unique() // FK
       table.integer('entity_id') // FK
 
       table.boolean('active'); // UK??
@@ -30,7 +31,7 @@ class RiderSchema extends Schema {
     })
   }
 
-  down () {
+  down() {
     this.drop('riders')
   }
 }

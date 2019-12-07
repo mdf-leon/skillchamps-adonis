@@ -33,9 +33,13 @@ class User extends Model {
    *
    * @return {Object}
    */
-  entities () {
-    return this.belongsToMany('App/Models/Entity')
-    //.pivotTable('user_entity') //hasmany?
+  
+  rider () {
+    return this.hasOne('App/Models/Rider')
+  }
+
+  institute () {
+    return this.hasOne('App/Models/Institute')
   }
 
   // attachToEntity(param){

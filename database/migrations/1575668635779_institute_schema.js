@@ -7,8 +7,8 @@ class InstituteSchema extends Schema {
   up () {
     this.create('institutes', (table) => {
       table.increments()
-      table.string('name')
-      table.integer('user_id') // FK
+      table.string('name', 80)
+      table.integer('user_id').unique() // FK
       table.integer('entity_id') // FK
       table.timestamps()
     })

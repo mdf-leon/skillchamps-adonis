@@ -16,15 +16,15 @@
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use('Route')
 
-Route.post('/registerEntity', 'AppController.createEntity');
 Route.get('/', 'AppController.index');
+Route.post('/register', 'AuthController.register'); // sign up
+Route.post('/authenticate', 'AuthController.authenticate'); // sign in
+
+//testes aleatorios
+Route.get('/test1', 'AppController.test1').middleware('auth');
 
 //TODO criar um rider(com entity)
+Route.post('/makeRider', 'AppController.makeRider').middleware('auth');
 
-Route.post('/getUserInfo', 'UserController.showInfo').middleware('auth')
+Route.post('/makeInstitute', 'AppController.makeInstitute')
 
-Route.post('/attach/user/entity', 'AppController.attachToEntity');
-
-Route.post('/register', 'AuthController.register');
-Route.post('/authenticate', 'AuthController.authenticate');
-Route.get('/app', 'AppController.index').middleware(["auth"]);

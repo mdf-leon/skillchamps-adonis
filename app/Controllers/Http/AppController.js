@@ -1,16 +1,82 @@
 'use strict'
 
 const User = use('App/Models/User')
+const Rider = use('App/Models/Rider')
+const Institute = use('App/Models/Institute')
 const Entity = use('App/Models/Entity')
-const EntityTag = use('App/Models/EntityTag')
+//const EntityTag = use('App/Models/EntityTag')
 const Database = use('Database')
 
 class AppController {
+
     index() {
-        return "foxa";
+        return { response: "Hello World" };
     }
 
-    
+    async makeInstitute({ request, response, auth }) {
+        const entityData = request.only([
+            'fed_tax_ido',
+            'subd_tax_ido',
+            'city_tax_ido',
+        ]);
+        const entity = await Entity.create(entityData) // criei a entity
+
+        await Database.transaction(async (trx) => {
+            let instituteData = request.only([
+                'name',
+            ]);
+            
+            const user = await auth.getUser()
+            //return response.send(user.id)
+            instituteData = { ...instituteData, entity_id: entity.id, user_id: user.id }
+
+            const institute = await Institute.create(instituteData)
+
+            // rider.Entity().attach()
+            return response.json({ success: "Institute created successfully" });
+        }).catch((e) => {
+            entity.delete()
+            //console.log(e)
+            return response.status(401).json({ Error: e.sqlMessage })
+        })
+    }
+
+    async makeRider({ request, response, auth }) {
+        const entityData = request.only([
+            'fed_tax_ido',
+            'subd_tax_ido',
+            'city_tax_ido',
+        ]);
+        const entity = await Entity.create(entityData) // criei a entity
+
+        await Database.transaction(async (trx) => {
+            let riderData = request.only([
+                'name',
+                'date_of_birth',
+                'motorcycle',
+                'motorcycle_plate',
+                'license_ido'
+            ]);
+            const user = await auth.getUser()
+            //return response.send(user.id)
+            riderData = { ...riderData, entity_id: entity.id, user_id: user.id }
+
+            const rider = await Rider.create(riderData)
+
+            // rider.Entity().attach()
+            return response.json({ success: "Rider created successfully" });
+        }).catch((e) => {
+            entity.delete()
+            //console.log(e)
+            return response.status(401).json({ Error: e.sqlMessage })
+        })
+    }
+
+    async test1({ request, response, auth }) {
+        const user = await auth.getUser()
+        const rider = await user.rider().fetch()
+        return await rider.entity().fetch()
+    }
 
     async attachToEntity({ request, response }) {
         const data = request.only(['id_e', 'id_u'])
@@ -28,7 +94,6 @@ class AppController {
         return await entity.users().fetch()
         //return link
     }
-
 
     async createEntity({ request, response }) {
         /*
