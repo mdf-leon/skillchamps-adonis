@@ -7,6 +7,8 @@ class RiderSchema extends Schema {
   up() {
     this.create('riders', (table) => {
       table.increments()
+      table.integer('user_id').unique() // FK
+      table.integer('entity_id') // FK
       table.string('name', 80)
 
 
@@ -22,8 +24,7 @@ class RiderSchema extends Schema {
       table.string('license_ido')
       //table.string('id_number').unique() // numero ou str?
 
-      table.integer('user_id').unique() // FK
-      table.integer('entity_id') // FK
+      
 
       table.boolean('active'); // UK??
 

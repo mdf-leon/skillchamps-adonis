@@ -8,8 +8,8 @@ class EntitySchema extends Schema {
     this.create('entities', (table) => {
       table.increments()
       table.string('name', 80)
-      table.string('fed_tax_ido', 80)
-      table.string('subd_tax_ido', 80)
+      table.string('fed_tax_ido', 80) 
+      table.string('subd_tax_ido', 80) 
       table.string('city_tax_ido', 80)
       // table.string('postal_code', 80)
       // table.string('street1', 80)
