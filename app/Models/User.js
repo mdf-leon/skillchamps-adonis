@@ -9,7 +9,7 @@ const Hash = use('Hash')
 const Entity = use('App/Models/Entity')
 
 class User extends Model {
-  static boot () {
+  static boot() {
     super.boot()
 
     /**
@@ -33,22 +33,28 @@ class User extends Model {
    *
    * @return {Object}
    */
-  
-  rider () {
+  // padroes do adonis
+
+  tokens() {
+    return this.hasMany('App/Models/Token')
+  }
+
+
+
+  // custom code
+
+  rider() {
     return this.hasOne('App/Models/Rider')
   }
 
-  institute () {
+  institute() {
     return this.hasOne('App/Models/Institute')
   }
 
-  // attachToEntity(param){
-  //   Entity.user().attach(param)
-  // }
-
-  tokens () {
-    return this.hasMany('App/Models/Token')
+  eventsOnManagement() { // eventos que este usuario controla/gerencia
+    return this.belongsToMany('App/Models/Event')
   }
+
 }
 
 module.exports = User
