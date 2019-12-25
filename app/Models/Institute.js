@@ -12,6 +12,10 @@ class Institute extends Model {
     entity(){
         return this.belongsTo('App/Models/Entity')
     }
+
+    event(){
+        return this.hasOne('App/Models/Event')
+    }
     
 }
 

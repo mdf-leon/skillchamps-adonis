@@ -22,9 +22,10 @@ Route.post('/authenticate', 'AuthController.authenticate'); // sign in
 
 //testes aleatorios
 Route.get('/test1', 'AppController.test1').middleware('auth');
+Route.get('/check', 'AppController.check').middleware('auth');
 
 //TODO criar um rider(com entity)
 Route.post('/makeRider', 'AppController.makeRider').middleware('auth');
-
-Route.post('/makeInstitute', 'AppController.makeInstitute')
+Route.post('/makeInstitute', 'AppController.makeInstitute').middleware('auth')
+Route.post('/createEvent', 'AppController.createEvent').middleware('auth')
 

@@ -4,6 +4,7 @@ const User = use('App/Models/User')
 const Rider = use('App/Models/Rider')
 const Institute = use('App/Models/Institute')
 const Entity = use('App/Models/Entity')
+const Event = use('App/Models/Event')
 //const EntityTag = use('App/Models/EntityTag')
 const Database = use('Database')
 
@@ -11,6 +12,31 @@ class AppController {
 
     index() {
         return { response: "Hello World" };
+    }
+
+    async createEvent({ request, response, auth }) {
+        const eventData = request.only([
+            'event_name', //event name
+            'date_begin',
+            //'date_end',
+        ]);
+
+        //const event = {}
+
+        await Database.transaction(async (trx) => {
+
+            const user = await auth.getUser()
+            const institute = await user.institute().fetch()
+            const event = await Event.create({...eventData, institute_id: institute.id})
+
+            return response.json(event)
+
+        }).catch((e) => {
+            console.log(eventData)
+            return response.status(401).json({ Error: e.sqlMessage })
+        })
+
+
     }
 
     async makeInstitute({ request, response, auth }) {
@@ -25,7 +51,7 @@ class AppController {
             let instituteData = request.only([
                 'name',
             ]);
-            
+
             const user = await auth.getUser()
             //return response.send(user.id)
             instituteData = { ...instituteData, entity_id: entity.id, user_id: user.id }
@@ -76,6 +102,10 @@ class AppController {
         const user = await auth.getUser()
         const rider = await user.rider().fetch()
         return await rider.entity().fetch()
+    }
+
+    async check({ request, response, auth }) {
+        return await auth.check()
     }
 
     async attachToEntity({ request, response }) {

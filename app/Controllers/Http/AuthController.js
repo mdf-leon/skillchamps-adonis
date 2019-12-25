@@ -14,7 +14,7 @@ class AuthController {
             const rpw = await request.only(['r_password'])
             if (data.password == rpw.r_password) {
                 const user = await User.create(data);
-                return user;
+                return response.json(user);
             } else {
                 return response.status(401).json({ Error: 'Passwords do not match' })
             }
@@ -33,9 +33,9 @@ class AuthController {
         return token;
     }
 
-    async registerRider({ request, response }) {
+    // async registerRider({ request, response }) {
 
-    }
+    // }
 
 }
 
