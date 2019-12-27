@@ -14,6 +14,36 @@ class AppController {
         return { response: "Hello World" };
     }
 
+    async signToEvent({ request, response, auth }) {
+
+        const data = request.only('rider_id');
+
+        await Database.transaction(async (trx) => {
+            const rider = await Rider.findOrFail(data.rider_id)
+            const user = await auth.getUser()
+            const institute = await user.institute().fetch()
+            const event = await institute.events().where('id', 2).first()
+            //const event = await Event.find(2)
+            console.log(rider)
+            if (await event.riders().where('rider_id', data.rider_id).first()) {
+                return response.status(401).json({ Error: "Ja existe" })
+            } else {
+                await event.riders().attach(data.rider_id)
+                return response.json(rider)
+            }
+
+            //await event.riders().attach(data.rider_id)
+            return response.json(rider)
+        }).catch((e) => {
+            console.log(e)
+            return response.status(401).json({ 
+                Error: e, ErrorSQL: e.sqlMessage,
+                ErrorMSG: "Provavelmente o Rider não existe."
+             })
+        })
+
+    }
+
     async createEvent({ request, response, auth }) {
         const eventData = request.only([
             'event_name', //event name
@@ -27,7 +57,7 @@ class AppController {
 
             const user = await auth.getUser()
             const institute = await user.institute().fetch()
-            const event = await Event.create({...eventData, institute_id: institute.id})
+            const event = await Event.create({ ...eventData, institute_id: institute.id })
 
             return response.json(event)
 

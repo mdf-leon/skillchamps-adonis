@@ -5,7 +5,7 @@ const Schema = use('Schema')
 
 class EventRiderSchema extends Schema {
   up () {
-    this.create('event_riders', (table) => {
+    this.create('event_rider', (table) => {
       table.increments()
       table.integer('event_id') // FK
       table.integer('rider_id') // FK
@@ -14,7 +14,7 @@ class EventRiderSchema extends Schema {
   }
 
   down () {
-    this.drop('event_riders')
+    this.drop('event_rider')
   }
 }
 

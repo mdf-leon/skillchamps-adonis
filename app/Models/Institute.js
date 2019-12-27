@@ -13,8 +13,8 @@ class Institute extends Model {
         return this.belongsTo('App/Models/Entity')
     }
 
-    event(){
-        return this.hasOne('App/Models/Event')
+    events(){
+        return this.hasMany('App/Models/Event')
     }
     
 }

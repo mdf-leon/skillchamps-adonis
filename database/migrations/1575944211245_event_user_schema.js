@@ -5,7 +5,7 @@ const Schema = use('Schema')
 
 class EventUserSchema extends Schema {
   up () {
-    this.create('event_users', (table) => { // TABELA DE ADMINS / ADMINISTRADORES 
+    this.create('event_user', (table) => { // TABELA DE ADMINS / ADMINISTRADORES 
       table.increments()
       table.integer('user_id') // FK
       table.integer('event_id') // FK
@@ -14,7 +14,7 @@ class EventUserSchema extends Schema {
   }
 
   down () {
-    this.drop('event_users')
+    this.drop('event_user')
   }
 }
 
