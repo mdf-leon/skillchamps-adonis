@@ -16,6 +16,9 @@
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use('Route')
 
+Route.get('/', ({response}) => {
+    return {a:"b"}
+});
 Route.get('/', 'AppController.index');
 Route.post('/register', 'AuthController.register'); // sign up
 Route.post('/authenticate', 'AuthController.authenticate'); // sign in
