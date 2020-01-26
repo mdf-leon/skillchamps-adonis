@@ -5,6 +5,10 @@ const Rider = use('App/Models/Rider')
 const Institute = use('App/Models/Institute')
 const Entity = use('App/Models/Entity')
 const Event = use('App/Models/Event')
+const Trial = use('App/Models/Trial')
+const PenaltyConf = use('App/Models/PenaltyConf')
+const Score = use('App/Models/Score')
+const Penalty = use('App/Models/Penalty')
 //const EntityTag = use('App/Models/EntityTag')
 const Database = use('Database')
 
@@ -14,15 +18,58 @@ class AppController {
         return { response: "Hello World" };
     }
 
+    
+    async addScore({request, response, auth}) {
+        const data = request.only([
+            'rider_id',  
+            'trial_id',
+            'penalties',
+            'time',
+        ]);
+
+        let res = await Score.create({
+            rider_id: data.rider_id, trial_id: data.trial_id, time: data.time
+        })
+
+        let pens = []
+
+        for(let penalty of data.penalties){
+            pens.push(await Penalty.create({...penalty, score_id: res.id}))
+        }
+
+        res = res.toJSON()
+        return response.json({...res, penalties: [...pens]})
+    }
+
+    async createTrial({request, response, auth}) {
+        const data = request.only([
+            'name',  
+            'event_id',
+            'penalties'
+        ]);
+
+        let res = await Trial.create({name: data.name, event_id: data.event_id})
+
+        let pens = []
+
+        for(let penalty of data.penalties){
+            pens.push(await PenaltyConf.create({...penalty, trial_id: res.id}))
+        }
+
+        res = res.toJSON()
+
+        return response.json({...res, penalties: [...pens]})
+    }
+
     async signToEvent({ request, response, auth }) {
 
-        const data = request.only('rider_id');
-
+        const data = request.only(['rider_id', 'event_id']);
+        // return response.send(request.only('event_id'))
         await Database.transaction(async (trx) => {
             const rider = await Rider.findOrFail(data.rider_id)
             const user = await auth.getUser()
             const institute = await user.institute().fetch()
-            const event = await institute.events().where('id', 2).first()
+            const event = await institute.events().where('id', data.event_id).first()
             //const event = await Event.find(2)
             console.log(rider)
             if (await event.riders().where('rider_id', data.rider_id).first()) {

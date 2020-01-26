@@ -28,5 +28,7 @@ Route.get('/check', 'AppController.check').middleware('auth');
 Route.post('/makeRider', 'AppController.makeRider').middleware('auth');
 Route.post('/makeInstitute', 'AppController.makeInstitute').middleware('auth')
 Route.post('/createEvent', 'AppController.createEvent').middleware('auth')
+Route.post('/createTrial', 'AppController.createTrial').middleware('auth')
+Route.post('/addScore', 'AppController.addScore').middleware('auth')
 Route.post('/signToEvent', 'AppController.signToEvent').middleware('auth')
 

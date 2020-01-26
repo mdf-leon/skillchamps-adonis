@@ -8,8 +8,8 @@ class PenaltySchema extends Schema {
     this.create('penalties', (table) => {
       table.increments()
       table.integer('score_id') // FK
-      table.integer('value')
-      table.string('description') 
+      table.integer('penalty_conf_id') // FK
+      table.integer('quantity')
       table.timestamps()
     })
   }
