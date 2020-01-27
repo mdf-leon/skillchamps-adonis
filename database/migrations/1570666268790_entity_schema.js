@@ -7,7 +7,7 @@ class EntitySchema extends Schema {
   up () {
     this.create('entities', (table) => {
       table.increments()
-      table.string('name', 80)
+      table.string('entity_name', 80) //why?
       table.string('fed_tax_ido', 80) 
       table.string('subd_tax_ido', 80) 
       table.string('city_tax_ido', 80)

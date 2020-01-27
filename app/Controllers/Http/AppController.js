@@ -91,6 +91,13 @@ class AppController {
 
     }
 
+    async showEvent({ request, response, auth }){
+        let user = await auth.getUser()
+        let institute = await user.institute().fetch()
+        let events = await institute.events().fetch()
+        return response.send(events)
+    }
+
     async createEvent({ request, response, auth }) {
         const eventData = request.only([
             'event_name', //event name
@@ -142,6 +149,50 @@ class AppController {
             //console.log(e)
             return response.status(401).json({ Error: e.sqlMessage })
         })
+    }
+
+    async showInstitute({ request, response, auth }) {
+        let user = await auth.getUser()
+        let institute = await user.institute().fetch()
+        if(institute == null) {
+            return response.status(400).send({Error: 'error', message: 'Institute doesnt exist'})
+        }
+        let entity = await institute.entity().fetch()
+        if(entity == null){
+            return response.status(400).send({Error: 'error', message: 'Entity doesnt exist'})
+        } else {
+            entity = entity.toJSON()
+            delete entity.name
+            institute = institute.toJSON()
+            return response.send({...institute, ...entity})
+        }
+    }
+
+    async institutesList({ request, response, auth }) {
+        let institutes = await Institute.all()
+
+        const query = request.get()
+        // return response.send(query)
+
+        institutes = await Institute.query()
+        .where(query.column, 'LIKE', '%'+query.value+'%')
+        .paginate(query.page, query.limit)
+        // .fetch()
+        // SELECT name, id FROM institutes
+        // institutes = institutes.toJSON()
+        // delete institutes.user_id
+        // delete institutes.entity_id
+        return response.send(institutes)
+    }
+
+    async showRider({ request, response, auth }) {
+        let user = await auth.getUser()
+        let rider = await user.rider().fetch()
+        if(rider == null){
+            return response.status(400).send({Error: 'error', message: 'Rider doesnt exist'})
+        } else {
+            return response.send(rider)
+        }
     }
 
     async makeRider({ request, response, auth }) {

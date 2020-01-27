@@ -25,6 +25,17 @@ class UserController {
         return toReturn
     }
 
+    async showUser({ request, response, auth }) {
+        let user = await auth.getUser()
+        if(user == null){
+            return response.status(400).send({Error: 'error', message: 'empty JSON'})
+        } else {
+            user = user.toJSON()
+            delete user.password
+            return response.send(user)
+        }
+    }
+
 }
 
 module.exports = UserController
