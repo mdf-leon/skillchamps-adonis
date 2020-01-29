@@ -18,10 +18,10 @@ class AppController {
         return { response: "Hello World" };
     }
 
-    
-    async addScore({request, response, auth}) {
+
+    async addScore({ request, response, auth }) {
         const data = request.only([
-            'rider_id',  
+            'rider_id',
             'trial_id',
             'penalties',
             'time',
@@ -33,32 +33,78 @@ class AppController {
 
         let pens = []
 
-        for(let penalty of data.penalties){
-            pens.push(await Penalty.create({...penalty, score_id: res.id}))
+        for (let penalty of data.penalties) {
+            pens.push(await Penalty.create({ ...penalty, score_id: res.id }))
         }
 
         res = res.toJSON()
-        return response.json({...res, penalties: [...pens]})
+        return response.json({ ...res, penalties: [...pens] })
     }
 
-    async createTrial({request, response, auth}) {
+    async createTrial({ request, response, auth }) {
         const data = request.only([
-            'name',  
+            'name',
             'event_id',
             'penalties'
         ]);
 
-        let res = await Trial.create({name: data.name, event_id: data.event_id})
+        let res = await Trial.create({ name: data.name, event_id: data.event_id })
 
         let pens = []
 
-        for(let penalty of data.penalties){
-            pens.push(await PenaltyConf.create({...penalty, trial_id: res.id}))
+        for (let penalty of data.penalties) {
+            pens.push(await PenaltyConf.create({ ...penalty, trial_id: res.id }))
         }
 
         res = res.toJSON()
 
-        return response.json({...res, penalties: [...pens]})
+        return response.json({ ...res, penalties: [...pens] })
+    }
+
+    async eventsSigned({ request, response, auth }) {
+
+        let user = await auth.getUser()
+        let rider = await user.rider().fetch()
+        // let eventss = await rider.events().fetch()
+        // return response.send(events)
+
+        // let events = await Event.all()
+
+        const query = request.get()
+
+        if (!query.column || !query.value) {
+            let events = await Database.select('*').from('event_rider')
+                .where('rider_id', 'LIKE', rider.id)
+                .innerJoin('events', 'event_rider.event_id', 'events.id')
+                .paginate(query.page, query.limit)
+            return response.send(events)
+        }
+
+        let events = await Database.select('*').from('event_rider')
+            .where('rider_id', 'LIKE', rider.id)
+            .innerJoin('events', 'event_rider.event_id', 'events.id')
+            .where('events.'+query.column, 'LIKE', '%' + query.value + '%')
+            // .whereRaw(query.column + ' LIKE ' + '%' + query.value + '%' 
+            // + ' AND rider_id LIKE ' + rider.id)
+            .paginate(query.page, query.limit)
+        return response.send(events)
+    }
+
+    async eventsList({ request, response, auth }) {
+        let events = await Event.all()
+
+        const query = request.get()
+
+        if (!query.column || !query.value) {
+            events = await Event.query()
+                .paginate(query.page, query.limit)
+            return response.send(events)
+        }
+
+        events = await Event.query()
+            .where(query.column, 'LIKE', '%' + query.value + '%')
+            .paginate(query.page, query.limit)
+        return response.send(events)
     }
 
     async signToEvent({ request, response, auth }) {
@@ -68,10 +114,11 @@ class AppController {
         await Database.transaction(async (trx) => {
             const rider = await Rider.findOrFail(data.rider_id)
             const user = await auth.getUser()
-            const institute = await user.institute().fetch()
-            const event = await institute.events().where('id', data.event_id).first()
+            // const institute = await user.institute().fetch()
+            // const event = await institute.events().where('id', data.event_id).first()
+            const event = await Event.findOrFail(data.event_id)
+
             //const event = await Event.find(2)
-            console.log(rider)
             if (await event.riders().where('rider_id', data.rider_id).first()) {
                 return response.status(401).json({ Error: "Ja existe" })
             } else {
@@ -82,16 +129,16 @@ class AppController {
             //await event.riders().attach(data.rider_id)
             return response.json(rider)
         }).catch((e) => {
-            console.log(e)
-            return response.status(401).json({ 
+            // console.log(e)
+            return response.status(401).json({
                 Error: e, ErrorSQL: e.sqlMessage,
                 ErrorMSG: "Provavelmente o Rider não existe."
-             })
+            })
         })
 
     }
 
-    async showEvent({ request, response, auth }){
+    async showEvent({ request, response, auth }) {
         let user = await auth.getUser()
         let institute = await user.institute().fetch()
         let events = await institute.events().fetch()
@@ -154,17 +201,17 @@ class AppController {
     async showInstitute({ request, response, auth }) {
         let user = await auth.getUser()
         let institute = await user.institute().fetch()
-        if(institute == null) {
-            return response.status(400).send({Error: 'error', message: 'Institute doesnt exist'})
+        if (institute == null) {
+            return response.status(400).send({ Error: 'error', message: 'Institute doesnt exist' })
         }
         let entity = await institute.entity().fetch()
-        if(entity == null){
-            return response.status(400).send({Error: 'error', message: 'Entity doesnt exist'})
+        if (entity == null) {
+            return response.status(400).send({ Error: 'error', message: 'Entity doesnt exist' })
         } else {
             entity = entity.toJSON()
             delete entity.name
             institute = institute.toJSON()
-            return response.send({...institute, ...entity})
+            return response.send({ ...institute, ...entity })
         }
     }
 
@@ -174,9 +221,15 @@ class AppController {
         const query = request.get()
         // return response.send(query)
 
+        if (!query.column || !query.value) {
+            institutes = await Institute.query()
+                .paginate(query.page, query.limit)
+            return response.send(institutes)
+        }
+
         institutes = await Institute.query()
-        .where(query.column, 'LIKE', '%'+query.value+'%')
-        .paginate(query.page, query.limit)
+            .where(query.column, 'LIKE', '%' + query.value + '%')
+            .paginate(query.page, query.limit)
         // .fetch()
         // SELECT name, id FROM institutes
         // institutes = institutes.toJSON()
@@ -188,8 +241,8 @@ class AppController {
     async showRider({ request, response, auth }) {
         let user = await auth.getUser()
         let rider = await user.rider().fetch()
-        if(rider == null){
-            return response.status(400).send({Error: 'error', message: 'Rider doesnt exist'})
+        if (rider == null) {
+            return response.status(400).send({ Error: 'error', message: 'Rider doesnt exist' })
         } else {
             return response.send(rider)
         }

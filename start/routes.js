@@ -38,8 +38,10 @@ Route.get('/institutesList', 'AppController.institutesList').middleware('auth')
 
 Route.post('/createEvent', 'AppController.createEvent').middleware('auth')
 Route.get('/showEvent', 'AppController.showEvent').middleware('auth')
+Route.post('/signToEvent', 'AppController.signToEvent').middleware('auth')
+Route.get('/eventsSigned', 'AppController.eventsSigned').middleware('auth')
+Route.get('/eventsList', 'AppController.eventsList').middleware('auth')
 
 Route.post('/createTrial', 'AppController.createTrial').middleware('auth')
 Route.post('/addScore', 'AppController.addScore').middleware('auth')
-Route.post('/signToEvent', 'AppController.signToEvent').middleware('auth')
 

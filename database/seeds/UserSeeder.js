@@ -14,14 +14,15 @@
 const User = use('App/Models/User')
 const Rider = use('App/Models/Rider')
 const Entity = use('App/Models/Entity')
+const Event = use('App/Models/Event')
 const Factory = use('Factory')
 
 class UserSeeder {
-  async run () {
-    const user0 = await User.create({email: 'a@b.c', password: 'x', name: 'John Wheelies'});
+  async run() {
+    const user0 = await User.create({ email: 'a@b.c', password: 'x', name: 'John Wheelies' });
     const usersArray = await Factory
-    .model('App/Models/User')
-    .createMany(100)
+      .model('App/Models/User')
+      .createMany(100)
 
     let users = await User.all()
     users = users.toJSON()
@@ -53,8 +54,19 @@ class UserSeeder {
         }
 
         await Rider.create({ ...riderData, name: user.name, user_id: user.id, entity_id: entity.id, })
-      }
 
+      }
+    }
+
+    for (let i = 0; i < 120; i++) {
+      const event = await Factory
+        .model('App/Models/Event')
+        .make()
+        const eventData = {
+          event_name: event.event_name,
+          date_begin: event.date_begin
+      }
+      await Event.create({ ...eventData, institute_id: 5 })
     }
 
   }

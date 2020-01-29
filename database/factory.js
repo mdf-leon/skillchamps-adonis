@@ -28,6 +28,13 @@ Factory.blueprint('App/Models/Rider', async (faker) => {
         license_ido: faker.integer({ min: 9999, max: 999999 })
     }
 })
+
+Factory.blueprint('App/Models/Event', async (faker) => {
+    return {
+        event_name: faker.word() + 'EVENT',
+        date_begin: faker.birthday(),
+    }
+})
 /*
 |--------------------------------------------------------------------------
 | Factory
