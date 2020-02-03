@@ -7,8 +7,8 @@ class RiderSchema extends Schema {
   up() {
     this.create('riders', (table) => {
       table.increments()
-      table.integer('user_id').unique() // FK
-      table.integer('entity_id') // FK
+      table.integer('user_id').unsigned().unique().references('id').inTable('users') // FK
+      table.integer('entity_id').unsigned().references('id').inTable('entities') // FK
       table.string('name', 80)
 
 

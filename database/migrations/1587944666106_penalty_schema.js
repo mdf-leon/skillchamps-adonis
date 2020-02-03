@@ -7,8 +7,8 @@ class PenaltySchema extends Schema {
   up () {
     this.create('penalties', (table) => {
       table.increments()
-      table.integer('score_id') // FK
-      table.integer('penalty_conf_id') // FK
+      table.integer('score_id').unsigned().references('id').inTable('scores') // FK
+      table.integer('penalty_conf_id').unsigned().references('id').inTable('penalty_confs') // FK
       table.integer('quantity')
       table.timestamps()
     })

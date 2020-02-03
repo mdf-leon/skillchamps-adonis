@@ -4,6 +4,7 @@ const Database = use('Database')
 
 const User = use('App/Models/User');
 const Rider = use('App/Models/Rider')
+const Token = use('App/Models/Token')
 
 class AuthController {
 
@@ -30,7 +31,11 @@ class AuthController {
         const { email, password } = request.all();
 
         const token = await auth.attempt(email, password);
-        return token;
+        return token
+        // const tok = await Token.findOrFail(token.id);
+        // return tok
+        // const user = await tok.user().fetch()
+        // return {...token, user: {...user}};
     }
 
     // async registerRider({ request, response }) {

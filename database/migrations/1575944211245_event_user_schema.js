@@ -7,8 +7,8 @@ class EventUserSchema extends Schema {
   up () {
     this.create('event_user', (table) => { // TABELA DE ADMINS / ADMINISTRADORES 
       table.increments()
-      table.integer('user_id') // FK
-      table.integer('event_id') // FK
+      table.integer('user_id').unsigned().references('id').inTable('users') // FK
+      table.integer('event_id').unsigned().references('id').inTable('events') // FK
       table.timestamps()
     })
   }

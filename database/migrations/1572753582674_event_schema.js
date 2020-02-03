@@ -7,7 +7,7 @@ class EventSchema extends Schema {
   up () {
     this.create('events', (table) => {
       table.increments()
-      table.integer('institute_id').notNullable() // FK
+      table.integer('institute_id').notNullable().unsigned().references('id').inTable('institutes') // FK
       //ADDRESS FK
       table.string('event_name')
       //table.int('countries_id').nullable()

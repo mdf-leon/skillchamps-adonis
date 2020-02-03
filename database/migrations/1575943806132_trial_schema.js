@@ -7,7 +7,7 @@ class TrialSchema extends Schema {
   up () {
     this.create('trials', (table) => {
       table.increments()
-      table.integer('event_id') // FK
+      table.integer('event_id').unsigned().references('id').inTable('events') // FK
       table.string('name')
       table.timestamps()
     })

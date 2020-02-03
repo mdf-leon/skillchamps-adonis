@@ -142,6 +142,7 @@ class AppController {
         let user = await auth.getUser()
         let institute = await user.institute().fetch()
         let events = await institute.events().fetch()
+        // console.log(events)
         return response.send(events)
     }
 
@@ -158,6 +159,7 @@ class AppController {
 
             const user = await auth.getUser()
             const institute = await user.institute().fetch()
+            console.log(institute.id)
             const event = await Event.create({ ...eventData, institute_id: institute.id })
 
             return response.json(event)
@@ -178,13 +180,14 @@ class AppController {
         ]);
         const entity = await Entity.create(entityData) // criei a entity
 
+        const user = await auth.getUser()
+
         await Database.transaction(async (trx) => {
             let instituteData = request.only([
                 'name',
             ]);
 
-            const user = await auth.getUser()
-            //return response.send(user.id)
+            // return response.send(await user.toJSON())
             instituteData = { ...instituteData, entity_id: entity.id, user_id: user.id }
 
             const institute = await Institute.create(instituteData)
@@ -210,8 +213,10 @@ class AppController {
         } else {
             entity = entity.toJSON()
             delete entity.name
+            let eid = entity.id
+            delete entity.id
             institute = institute.toJSON()
-            return response.send({ ...institute, ...entity })
+            return response.send({ ...institute, entity_id: eid, ...entity,  })
         }
     }
 
@@ -286,7 +291,7 @@ class AppController {
     }
 
     async check({ request, response, auth }) {
-        return await auth.check()
+        return await auth.getUser()
     }
 
     async attachToEntity({ request, response }) {
