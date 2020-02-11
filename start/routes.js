@@ -35,7 +35,7 @@ HASH_DRIVER=bcrypt
 const Route = use('Route')
 
 Route.get('/a', ({response}) => {
-    return {a:"b bb b"}
+    return {a:"b bb b bs"}
 });
 Route.get('/', 'AppController.index');
 Route.post('/register', 'AuthController.register'); // sign up
