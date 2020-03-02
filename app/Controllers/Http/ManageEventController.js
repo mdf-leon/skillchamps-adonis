@@ -78,6 +78,92 @@ class ManageEventController {
 
     }
 
+    async managedPenaltyConfsFromTrial({ request, response, auth }) {
+        //assumo que o evento está acontecendo
+        //esta rota apenas procura as trials do admin
+
+        const query = request.get()
+
+        let user = await auth.getUser()
+        let institute = await user.institute().fetch()
+        let events = await institute.events().fetch()
+        events = events.toJSON()
+        let trial
+        for(let event of events){
+            if(event.id == query.event_id){
+
+                let eventTemp = await Event.findOrFail(query.event_id)
+                let trials = await eventTemp.trials().fetch()
+                trials = trials.toJSON()
+                for(let trialL of trials){
+                    if(trialL.id == query.trial_id){
+                        trial = await Trial.findOrFail(query.trial_id)
+                    }
+                }
+
+            }
+        }
+        let penalties = await trial.penaltyConfs().fetch()
+
+
+        return response.send(penalties)
+    }
+
+    async sendScore({ request, response, auth }) {
+    
+        const data = request.all()
+        
+        const score = await Score.create({time: data.time, rider_id: data.rider_id, trial_id: data.trial_id})
+        let penalties = []
+        for(let penalty of data.penalties){
+            let pen = await Penalty.create({...penalty, score_id: score.id})
+            penalties.push(pen)
+            console.log(pen)
+        }
+
+        return {score, penalties}
+
+    }
+
+    async showScore({ request, response, auth }) {
+    
+        const query = request.get()
+
+        let user = await auth.getUser()
+        let institute = await user.institute().fetch()
+        // let event = await Event.findOrFail(query.event_id)
+        let events = await institute.events().fetch()
+        events = events.toJSON()
+        let trial
+        for(let event of events){
+            if(event.id == query.event_id){
+
+                let eventTemp = await Event.findOrFail(query.event_id)
+                let trials = await eventTemp.trials().fetch()
+                trials = trials.toJSON()
+                // return response.send(trials)
+                for(let trialL of trials){
+                    if(trialL.id == query.trial_id){
+                        trial = await Trial.findOrFail(trialL.id)
+                    }
+                }
+            }
+        }
+        let penaltyConfs = await trial.penaltyConfs().fetch()
+        let scoresO = await trial.scores().fetch()
+        let scores = scoresO.toJSON()
+        for(let score in scores){
+            let tempScore = await Score.findOrFail(scores[score].id)
+            let penalties = await tempScore.penalties().fetch()
+            penalties = penalties.toJSON()
+            console.log(penalties)
+            scores[score].penalties = penalties
+        }
+
+        return {penaltyConfs, scores}
+
+    }
+
 }
 
 module.exports = ManageEventController

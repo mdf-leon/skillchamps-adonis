@@ -59,10 +59,14 @@ Route.get('/showEvent', 'AppController.showEvent').middleware('auth') // events 
 Route.post('/signToEvent', 'AppController.signToEvent').middleware('auth')
 Route.get('/eventsSigned', 'AppController.eventsSigned').middleware('auth')
 Route.get('/eventsList', 'AppController.eventsList').middleware('auth')
+
 //manage event:
 Route.get('/managedEventsList', 'ManageEventController.managedEventsList').middleware('auth') // same as /showEvent (?)
 Route.get('/managedTrialsList', 'ManageEventController.managedTrialsList').middleware('auth') 
 Route.get('/managedRidersList', 'ManageEventController.managedRidersList').middleware('auth') 
+Route.get('/managedPenaltyConfsFromTrial', 'ManageEventController.managedPenaltyConfsFromTrial').middleware('auth') 
+Route.post('/sendScore', 'ManageEventController.sendScore').middleware('auth') // coraçao da aplicaçao
+Route.get('/showScore', 'ManageEventController.showScore').middleware('auth') // coraçao da aplicaçao
 
 
 Route.post('/createTrial', 'AppController.createTrial').middleware('auth')

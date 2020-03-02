@@ -5,12 +5,16 @@ const Model = use('Model')
 
 class Trial extends Model {
   
-  score() {
+  scores() {
     return this.hasMany('App/Models/Score')
   }
 
   event() {
     return this.belongsTo('App/Models/Event')
+  }
+
+  penaltyConfs(){
+    return this.hasMany('App/Models/PenaltyConf')
   }
 
 }
