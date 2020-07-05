@@ -42,23 +42,25 @@ Route.post('/register', 'AuthController.register'); // sign up
 Route.post('/authenticate', 'AuthController.authenticate'); // sign in
 
 Route.get('/showUser', 'UserController.showUser').middleware('auth');
+Route.get('/indexUser', 'UserController.index').middleware('auth');
 
 //testes aleatorios
 Route.get('/test1', 'AppController.test1').middleware('auth');
 Route.get('/check', 'AppController.check').middleware('auth');
 
-Route.post('/makeRider', 'AppController.makeRider').middleware('auth');
-Route.get('/showRider', 'AppController.showRider').middleware('auth');
+Route.post('/makeRider', 'RiderController.makeRider').middleware('auth');
+Route.get('/showRider', 'RiderController.showRider').middleware('auth');
+Route.get('/indexRider', 'RiderController.index').middleware('auth');
 
-Route.post('/makeInstitute', 'AppController.makeInstitute').middleware('auth')
-Route.get('/showInstitute', 'AppController.showInstitute').middleware('auth')
-Route.get('/institutesList', 'AppController.institutesList').middleware('auth')
+Route.post('/makeInstitute', 'InstituteController.makeInstitute').middleware('auth')
+Route.get('/showInstitute', 'InstituteController.showInstitute').middleware('auth')
+Route.get('/institutesList', 'InstituteController.institutesList').middleware('auth')
 
-Route.post('/createEvent', 'AppController.createEvent').middleware('auth')
-Route.get('/showEvent', 'AppController.showEvent').middleware('auth') // events the admin created
-Route.post('/signToEvent', 'AppController.signToEvent').middleware('auth')
-Route.get('/eventsSigned', 'AppController.eventsSigned').middleware('auth')
-Route.get('/eventsList', 'AppController.eventsList').middleware('auth')
+Route.post('/createEvent', 'EventController.createEvent').middleware('auth')
+Route.get('/showEvent', 'EventController.showEvent').middleware('auth') // events the admin created
+Route.post('/signToEvent', 'EventController.signToEvent').middleware('auth')
+Route.get('/eventsSigned', 'EventController.eventsSigned').middleware('auth')
+Route.get('/eventsList', 'EventController.eventsList').middleware('auth')
 
 //manage event:
 Route.get('/managedEventsList', 'ManageEventController.managedEventsList').middleware('auth') // same as /showEvent (?)
@@ -68,7 +70,6 @@ Route.get('/managedPenaltyConfsFromTrial', 'ManageEventController.managedPenalty
 Route.post('/sendScore', 'ManageEventController.sendScore').middleware('auth') // coraçao da aplicaçao
 Route.get('/showScore', 'ManageEventController.showScore').middleware('auth') // coraçao da aplicaçao
 
-
-Route.post('/createTrial', 'AppController.createTrial').middleware('auth')
-Route.post('/addScore', 'AppController.addScore').middleware('auth')
+Route.post('/createTrial', 'ManageEventController.createTrial').middleware('auth')
+Route.post('/addScore', 'ManageEventController.addScore').middleware('auth')
 

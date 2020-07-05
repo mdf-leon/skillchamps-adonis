@@ -4,6 +4,10 @@ const User = use('App/Models/User')
 
 class UserController {
 
+    async index() {
+        return await User.all()
+    }
+
     async showInfo({ request, response, params, auth }) { // this could be get()... but isn't rn;
         let toReturn = {}
         //const { id } = params;
