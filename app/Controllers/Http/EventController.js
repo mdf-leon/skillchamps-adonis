@@ -15,32 +15,13 @@ const Database = use('Database')
 class EventController {
 
   async eventsSigned({ request, response, auth }) {
-
+    const par = request.get()
     let user = await auth.getUser()
-    let rider = await user.rider().fetch()
-    // let eventss = await rider.events().fetch()
-    // return response.send(events)
 
-    // let events = await Event.all()
-
-    const query = request.get()
-
-    if (!query.column || !query.value) {
-      let events = await Database.select('*').from('event_rider')
-        .where('rider_id', 'LIKE', rider.id)
-        .innerJoin('events', 'event_rider.event_id', 'events.id')
-      // .paginate(query.page, query.limit)
-      return response.send(events)
-    }
-
-    let events = await Database.select('*').from('event_rider')
-      .where('rider_id', 'LIKE', rider.id)
-      .innerJoin('events', 'event_rider.event_id', 'events.id')
-      .where('events.' + query.column, 'LIKE', '%' + query.value + '%')
-    // // .whereRaw(query.column + ' LIKE ' + '%' + query.value + '%' 
-    // // + ' AND rider_id LIKE ' + rider.id)
-    // .paginate(query.page, query.limit)
-    return response.send(events)
+    let q = Event.query()
+      .whereHas('riders', b => { b.where('user_id', user.id) }) // apenas eventos deste rider logado
+      .with('institute') // inclui informaçoes do instituto de cada evento
+    return await q.fetch()
   }
 
   async eventsList({ request, response, auth }) {
@@ -66,7 +47,7 @@ class EventController {
     // return response.send(request.only('event_id'))
     await Database.transaction(async (trx) => {
       const rider = await Rider.findOrFail(data.rider_id)
-      
+
       const user = await auth.getUser()
       // const institute = await user.institute().fetch()
       // const event = await institute.events().where('id', data.event_id).first()

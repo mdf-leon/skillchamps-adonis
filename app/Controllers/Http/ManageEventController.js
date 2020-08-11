@@ -38,6 +38,12 @@ class ManageEventController {
         let eventTemp = await Event.findOrFail(query.event_id)
         let trials = await eventTemp.trials().fetch()
 
+        if (query.trial_id) {
+          trials = await eventTemp.trials().where('trials.id', query.trial_id).first()
+        } else {
+          trials = await eventTemp.trials().fetch()
+        }
+
         return response.send(trials)
       }
     }
@@ -70,7 +76,12 @@ class ManageEventController {
     }
     if (!eventOne) return response.status(500).send({ Erro: "Unknown event" })
 
-    let riders = await eventOne.riders().fetch()
+    let riders
+    if (query.rider_id) {
+      riders = await eventOne.riders().where('riders.id', query.rider_id).first()
+    } else {
+      riders = await eventOne.riders().fetch()
+    }
 
     if (!riders) return response.status(500).send({ Erro: "There are no riders on here, populate this wasteland" })
 
