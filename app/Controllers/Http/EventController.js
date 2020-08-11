@@ -19,9 +19,10 @@ class EventController {
     let user = await auth.getUser()
 
     let q = Event.query()
-      .whereHas('riders', b => { b.where('user_id', user.id) }) // apenas eventos deste rider logado
+    if (par.event_id) q = q.where('id', par.event_id)
+    q = q.whereHas('riders', b => { b.where('user_id', user.id) }) // apenas eventos deste rider logado
       .with('institute') // inclui informaçoes do instituto de cada evento
-    return await q.fetch()
+    return await par.event_id ? q.first() : q.fetch()
   }
 
   async eventsList({ request, response, auth }) {
