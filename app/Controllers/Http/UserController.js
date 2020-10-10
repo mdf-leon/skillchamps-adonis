@@ -1,6 +1,7 @@
 'use strict'
 const Entity = use('App/Models/Entity')
 const User = use('App/Models/User')
+const Env = use('Env')
 
 class UserController {
 
