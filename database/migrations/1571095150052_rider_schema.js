@@ -19,6 +19,7 @@ class RiderSchema extends Schema {
       //table.integer('categories_id').references('categories.id')
       //table.integer('category_id').notNullable().unsigned().
       //references('categories.id').onDelete('cascade').index('category_id')
+      table.string('category')
       table.string('motorcycle') // description
       table.string('motorcycle_plate')
       table.string('license_ido')
