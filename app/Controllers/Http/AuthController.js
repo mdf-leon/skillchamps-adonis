@@ -4,6 +4,7 @@ const Database = use('Database')
 
 const User = use('App/Models/User');
 const Rider = use('App/Models/Rider')
+const Event = use('App/Models/Event')
 const Token = use('App/Models/Token')
 
 class AuthController {
@@ -14,7 +15,9 @@ class AuthController {
             const data = await request.only(['name', 'email', 'password']);
             const rpw = await request.only(['r_password'])
             if (data.password == rpw.r_password) {
-                const user = await User.create(data);
+                let user = await User.create(data);
+                user = user.toJSON();
+                delete user.password;
                 return response.json(user);
             } else {
                 return response.status(401).json({ Error: 'Passwords do not match' })
@@ -26,6 +29,8 @@ class AuthController {
         })
 
     }
+
+
 
     async authenticate({ request, auth }) {
         const { email, password } = request.all();

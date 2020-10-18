@@ -42,6 +42,17 @@ class EventController {
     return response.send(events)
   }
 
+  async uncontrolledRegister({ request, response }) {
+    const { rdata, parameters } = await request.only(['rdata', 'parameters']);
+    const event = await Event.find(parameters.event_id)
+    const rider = await Rider.create(rdata);
+    if (!parameters.event_id) response.status(400).json('parameters.event_id is missing')
+    if (!event || !rider) return response.status(500).json({error: 'event not found or rider could not be created'})
+    await event.riders().attach(rider.id)
+
+    return response.json({ rider, event });
+}
+
   async signToEvent({ request, response, auth }) {
 
     const data = request.only(['rider_id', 'event_id']);
