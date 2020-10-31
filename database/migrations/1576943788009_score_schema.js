@@ -9,7 +9,8 @@ class ScoreSchema extends Schema {
       table.increments()
       table.integer('rider_id').unsigned().references('id').inTable('riders') // FK
       table.integer('trial_id').unsigned().references('id').inTable('trials') // FK
-      table.integer('time')
+      table.integer('time').unsigned()
+      table.integer('time_total').unsigned()
       table.timestamps()
     })
   }

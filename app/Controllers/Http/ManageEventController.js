@@ -212,13 +212,19 @@ class ManageEventController {
     })
 
     let pens = []
+    let penaltyTime = 0
 
     for (let penalty of data.penalties) {
       pens.push(await Penalty.create({ ...penalty, score_id: res.id }))
+      const pc = await PenaltyConf.findOrFail(penalty.penalty_conf_id)
+      penaltyTime += pc.time_penalty
     }
 
+    res.time_total = Number(res.time) + Number(penaltyTime)
+    await res.save()
+
     res = res.toJSON()
-    return response.json({ ...res, penalties: [...pens] })
+    return response.json({ ...res, penaltyTime, penalties: [...pens] })
   }
 
   async createTrial({ request, response, auth }) {
