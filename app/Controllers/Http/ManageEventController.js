@@ -176,10 +176,19 @@ class ManageEventController {
 
   }
 
-  async result({ request, response, auth }) {
+  async fullRanking({ request, params, response, auth }) {
 
-    const query = request.get()
+    // const event = await institutes.booklets().where('id', params.id).firstOrFail()
+    let event = await Event.query()
+      .with('trials')
+      .with('trials.scores')
+      .where({ id: params.event_id }).fetch()
 
+    // event = event.with(['trials', 'scores'])
+
+
+
+    return event
 
   }
 
@@ -207,6 +216,14 @@ class ManageEventController {
     const event = await rider.events().where('events.id', '=', trial.toJSON().event.id).first()
     if (!event) return response.status(400).json({ bad_request: 'este rider esta inscrito neste evento?' })
 
+    let old = await Score.query().where({ rider_id: data.rider_id, trial_id: data.trial_id }).with('penalties').first();
+    if (old) {
+      for (let penalty of old.toJSON().penalties) {
+        const pen = await Penalty.findOrFail(penalty.id)
+        await pen.delete()
+      }
+      await old.delete()
+    }
     let res = await Score.create({
       rider_id: data.rider_id, trial_id: data.trial_id, time: data.time
     })
