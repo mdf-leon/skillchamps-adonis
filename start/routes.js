@@ -50,6 +50,7 @@ Route.get('/check', 'AppController.check').middleware('auth');
 
 Route.post('/makeRider', 'RiderController.makeRider').middleware('auth');
 Route.get('/showRider', 'RiderController.showRider').middleware('auth');
+Route.delete('/deleteRider', 'RiderController.deleteRider').middleware('auth');
 Route.get('/indexRider', 'RiderController.index').middleware('auth');
 
 Route.post('/makeInstitute', 'InstituteController.makeInstitute').middleware('auth')

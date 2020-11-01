@@ -29,6 +29,15 @@ class RiderController {
         }
     }
 
+    async deleteRider({ request, response, params }) {
+
+        let rider = await Rider.findOrFail(params.rider_id)
+        
+        if (await rider.delete()) {
+            return response.send({ deleted: rider })
+        } return response.status(500).send({message: 'something went wrong'})
+    }
+
     async makeRider({ request, response, auth }) {
         const entityData = request.only([
             'fed_tax_ido',
