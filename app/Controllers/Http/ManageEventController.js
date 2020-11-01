@@ -179,14 +179,31 @@ class ManageEventController {
   async fullRanking({ request, params, response, auth }) {
 
     // const event = await institutes.booklets().where('id', params.id).firstOrFail()
-    let event = await Event.query()
-      .with('trials')
-      .with('trials.scores')
-      .where({ id: params.event_id }).fetch()
+    // let event = await Event.query()
+    //   .with('trials')
+    //   .with('trials.scores', (builder) => {
+    //     builder.orderBy('time_total', 'desc')
+    //   })
+    //   .with('trials.scores.rider')
+    //   .where({ id: params.event_id }).fetch()
 
     // event = event.with(['trials', 'scores'])
 
+    // let riders = await Rider.query()
+    //   .with('scores')
+    //   .with('scores.trial')
+    //   // .with('event_rider', (builder) => {
+    //   //   builder.where('event_id', params.event_id)
+    //   // })
+    //   .whereInPivot('event_rider', (builder) => {
+    //     builder.where('event_id', params.event_id)
+    //   })
+    //   // .where({ id: params.event_id })
+    //   .fetch()
 
+    let event = await Event.query()
+      .with('riders.scores.trial')
+      .where({ id: params.event_id }).fetch()
 
     return event
 
