@@ -32,10 +32,13 @@ class RiderController {
     async deleteRider({ request, response, params }) {
 
         let rider = await Rider.findOrFail(params.rider_id)
-        
+         await Database
+            .table('event_rider')
+            .where('rider_id', params.rider_id)
+            .delete()
         if (await rider.delete()) {
             return response.send({ deleted: rider })
-        } return response.status(500).send({message: 'something went wrong'})
+        } return response.status(500).send({ message: 'something went wrong' })
     }
 
     async makeRider({ request, response, auth }) {
