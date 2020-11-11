@@ -75,4 +75,5 @@ Route.get('/showScore', 'ManageEventController.showScore').middleware('auth') //
 Route.post('/createTrial', 'ManageEventController.createTrial').middleware('auth')
 Route.post('/addScore', 'ManageEventController.addScore').middleware('auth')
 Route.get('/fullRanking/:event_id', 'ManageEventController.fullRanking').middleware('auth')
+Route.get('/fullRanking2/:score_id', 'ManageEventController.fullRanking').middleware('auth')
 

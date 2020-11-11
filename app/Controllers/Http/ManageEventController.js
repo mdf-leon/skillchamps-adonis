@@ -203,9 +203,25 @@ class ManageEventController {
 
     let event = await Event.query()
       .with('riders.scores.trial')
-      .where({ id: params.event_id }).fetch()
+      .with('riders.scores.penalties')
+      .where({ id: params.event_id }).first()
 
-    return event
+    event = event.toJSON()
+
+    return {event, riders}
+
+  }
+
+  async fullRanking2({ request, params, response, auth }) {
+
+    let event = await Event.query()
+      .with('riders.scores.trial')
+      .with('riders.scores.penalties')
+      .where({ id: params.score_id }).first() // TODO: score_id
+
+    event = event.toJSON()
+
+    return {event, riders}
 
   }
 
