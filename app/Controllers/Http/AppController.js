@@ -19,47 +19,47 @@ class AppController {
     }
 
 
-    async addScore({ request, response, auth }) {
-        const data = request.only([
-            'rider_id',
-            'trial_id',
-            'penalties',
-            'time',
-        ]);
+    // async addScore({ request, response, auth }) {
+    //     const data = request.only([
+    //         'rider_id',
+    //         'trial_id',
+    //         'penalties',
+    //         'time',
+    //     ]);
 
-        let res = await Score.create({
-            rider_id: data.rider_id, trial_id: data.trial_id, time: data.time
-        })
+    //     let res = await Score.create({
+    //         rider_id: data.rider_id, trial_id: data.trial_id, time: data.time
+    //     })
 
-        let pens = []
+    //     let pens = []
 
-        for (let penalty of data.penalties) {
-            pens.push(await Penalty.create({ ...penalty, score_id: res.id }))
-        }
+    //     for (let penalty of data.penalties) {
+    //         pens.push(await Penalty.create({ ...penalty, score_id: res.id }))
+    //     }
 
-        res = res.toJSON()
-        return response.json({ ...res, penalties: [...pens] })
-    }
+    //     res = res.toJSON()
+    //     return response.json({ ...res, penalties: [...pens] })
+    // }
 
-    async createTrial({ request, response, auth }) {
-        const data = request.only([
-            'name',
-            'event_id',
-            'penalties'
-        ]);
+    // async createTrial({ request, response, auth }) {
+    //     const data = request.only([
+    //         'name',
+    //         'event_id',
+    //         'penalties'
+    //     ]);
 
-        let res = await Trial.create({ name: data.name, event_id: data.event_id })
+    //     let res = await Trial.create({ name: data.name, event_id: data.event_id })
 
-        let pens = []
+    //     let pens = []
 
-        for (let penalty of data.penalties) {
-            pens.push(await PenaltyConf.create({ ...penalty, trial_id: res.id }))
-        }
+    //     for (let penalty of data.penalties) {
+    //         pens.push(await PenaltyConf.create({ ...penalty, trial_id: res.id }))
+    //     }
 
-        res = res.toJSON()
+    //     res = res.toJSON()
 
-        return response.json({ ...res, penalties: [...pens] })
-    }
+    //     return response.json({ ...res, penalties: [...pens] })
+    // }
 
     async eventsSigned({ request, response, auth }) {
 
