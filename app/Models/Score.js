@@ -8,6 +8,10 @@ class Score extends Model {
     return this.hasMany('App/Models/Penalty')
   }
 
+  bonuses() {
+    return this.hasMany('App/Models/Bonus')
+  }
+
   trial() {
     return this.belongsTo('App/Models/Trial')
   }

@@ -69,11 +69,12 @@ Route.get('/managedEventsList', 'ManageEventController.managedEventsList').middl
 Route.get('/managedTrialsList', 'ManageEventController.managedTrialsList').middleware('auth') 
 Route.get('/managedRidersList', 'ManageEventController.managedRidersList').middleware('auth') 
 Route.get('/managedPenaltyConfsFromTrial', 'ManageEventController.managedPenaltyConfsFromTrial').middleware('auth') 
+Route.get('/managedBonusConfsFromTrial', 'ManageEventController.managedBonusConfsFromTrial').middleware('auth') 
 Route.post('/sendScore', 'ManageEventController.sendScore').middleware('auth') // coraçao da aplicaçao
 Route.get('/showScore', 'ManageEventController.showScore').middleware('auth') // coraçao da aplicaçao
 
 Route.post('/createTrial', 'ManageEventController.createTrial').middleware('auth')
 Route.post('/addScore', 'ManageEventController.addScore').middleware('auth')
 Route.get('/fullRanking/:event_id', 'ManageEventController.fullRanking').middleware('auth')
-Route.get('/fullRanking2/:score_id', 'ManageEventController.fullRanking').middleware('auth')
+Route.get('/fullRanking2', 'ManageEventController.fullRanking2').middleware('auth')
 

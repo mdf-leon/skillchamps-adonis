@@ -89,6 +89,38 @@ class ManageEventController {
 
   }
 
+  async managedBonusConfsFromTrial({ request, response, auth }) {
+    //assumo que o evento está acontecendo
+    //esta rota apenas procura as trials do admin
+
+    const query = request.get()
+
+    let user = await auth.getUser()
+    let institute = await user.institute().fetch()
+    let events = await institute.events().fetch()
+    events = events.toJSON()
+    let trial
+    for (let event of events) {
+      if (event.id == query.event_id) {
+
+        let eventTemp = await Event.findOrFail(query.event_id)
+        let trials = await eventTemp.trials().fetch()
+        trials = trials.toJSON()
+        for (let trialL of trials) {
+          if (trialL.id == query.trial_id) {
+            trial = await Trial.findOrFail(query.trial_id)
+          }
+        }
+
+      }
+    }
+    if (!trial) return response.status(400).send({ "bad_request": "sure this trial exist?" })
+    let bonuses = await trial.bonusConfs().fetch()
+
+
+    return response.send(bonuses)
+  }
+
   async managedPenaltyConfsFromTrial({ request, response, auth }) {
     //assumo que o evento está acontecendo
     //esta rota apenas procura as trials do admin
@@ -204,24 +236,28 @@ class ManageEventController {
     let event = await Event.query()
       .with('riders.scores.trial')
       .with('riders.scores.penalties')
+      .with('riders.scores.bonuses')
       .where({ id: params.event_id }).first()
 
     event = event.toJSON()
 
-    return {event}
+    return { event }
 
   }
 
   async fullRanking2({ request, params, response, auth }) {
-
+    const get = request.get()
+    // .innerJoin('accounts', 'user.id', 'accounts.user_id')
     let event = await Event.query()
       .with('riders.scores.trial')
+      .innerJoin('accounts', 'user.id', 'accounts.user_id')
       .with('riders.scores.penalties')
-      .where({ id: params.score_id }).first() // TODO: score_id
+      .where({ id: get.event_id })
+      .andWhere({ "trial.id": get.trial_id }).first()
 
     event = event.toJSON()
 
-    return {event, riders}
+    return { event }
 
   }
 
