@@ -208,7 +208,7 @@ class ManageEventController {
 
     event = event.toJSON()
 
-    return {event, riders}
+    return {event}
 
   }
 
