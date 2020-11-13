@@ -247,22 +247,44 @@ class ManageEventController {
 
   }
 
+  // async fullRanking2({ request, params, response, auth }) {
+  //   const get = request.get()
+  //   // .innerJoin('accounts', 'user.id', 'accounts.user_id')
+  //   let event = await Database
+  //     .table('events')
+  //     .innerJoin('event_rider', 'events.id', 'event_rider.event_id')
+  //     .innerJoin('riders', 'riders.id', 'event_rider.rider_id')
+  //     // .innerJoin('scores', 'scores.rider_id', 'riders.id')
+  //     // .innerJoin('trials', 'trials.id', 'riders.trial_id')
+  //     // .where("events.id", "=", get.event_id)
+  //     // .andWhere({ "trials.id": get.trial_id })
+  //     // .first()
+
+  //   // event = event.toJSON()
+
+  //   return { event }
+
+  // }
   async fullRanking2({ request, params, response, auth }) {
     const get = request.get()
     // .innerJoin('accounts', 'user.id', 'accounts.user_id')
-    let event = await Event.query()
-      .with('riders.scores.trial')
-      .innerJoin('accounts', 'user.id', 'accounts.user_id')
-      .with('riders.scores.penalties')
-      .where({ id: get.event_id })
-      .andWhere({ "trial.id": get.trial_id }).first()
+    let event = await Database
+      .select("*")
+      .table('riders')
+      .innerJoin('event_rider', 'riders.id', 'event_rider.rider_id')
+      .innerJoin('events', 'events.id', 'event_rider.event_id')
+      .innerJoin('trials', 'trials.event_id', 'events.id')
+      // .innerJoin('scores', 'scores.rider_id', 'riders.id')
+      // .innerJoin('riders', 'riders.id', 'event_rider.rider_id')
+      .where("events.id",  get.event_id)
+      .andWhere({ "trials.id": get.trial_id })
+      // .first()
 
-    event = event.toJSON()
+    // event = event.toJSON()
 
     return { event }
 
   }
-
   async addScore({ request, response, auth }) {
     const data = request.only([
       'rider_id',
