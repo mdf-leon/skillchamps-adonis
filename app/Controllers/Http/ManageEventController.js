@@ -274,15 +274,16 @@ class ManageEventController {
       .innerJoin('event_rider', 'riders.id', 'event_rider.rider_id')
       .innerJoin('events', 'events.id', 'event_rider.event_id')
       .innerJoin('trials', 'trials.event_id', 'events.id')
-      // .innerJoin('scores', 'scores.rider_id', 'riders.id')
+      .innerJoin('scores', 'scores.rider_id', 'riders.id')
       // .innerJoin('riders', 'riders.id', 'event_rider.rider_id')
       .where("events.id",  get.event_id)
       .andWhere({ "trials.id": get.trial_id })
-      // .first()
+      .andWhere({ "scores.trial_id": get.trial_id })
+      // .fetch()
 
     // event = event.toJSON()
 
-    return { event }
+    return { ...event }
 
   }
   async addScore({ request, response, auth }) {
