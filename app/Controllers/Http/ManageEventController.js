@@ -268,20 +268,22 @@ class ManageEventController {
   async fullRanking2({ request, params, response, auth }) {
     const get = request.get()
     // .innerJoin('accounts', 'user.id', 'accounts.user_id')
-    let event = await Database
-      .select("*")
-      .table('riders')
-      .innerJoin('event_rider', 'riders.id', 'event_rider.rider_id')
-      .innerJoin('events', 'events.id', 'event_rider.event_id')
-      .innerJoin('trials', 'trials.event_id', 'events.id')
-      .innerJoin('scores', 'scores.rider_id', 'riders.id')
-      // .innerJoin('riders', 'riders.id', 'event_rider.rider_id')
-      .where("events.id",  get.event_id)
-      .andWhere({ "trials.id": get.trial_id })
-      .andWhere({ "scores.trial_id": get.trial_id })
-      // .fetch()
+    let event = await Event.query()
+      .with('riders.scores.trial')
+      .with('riders.scores.penalties')
+      .with('riders.scores.bonuses')
+      .where({ id: get.event_id })
+      .first()
 
-    // event = event.toJSON()
+    event = event.toJSON()
+
+    let filtered = []
+
+    for (let i = 0; i < event.riders.length; i++) {
+        filtered.push(event.riders[i].scores.filter( score => 
+          score.trial.is == get.trial_id
+        ))
+    }
 
     return { ...event }
 
