@@ -287,6 +287,18 @@ class ManageEventController {
         })[0]
     }
 
+    event.riders.sort(function(riderA, riderB) {
+      let timeA = riderA.scores.time_total
+      let timeB = riderB.scores.time_total
+      if (Number(timeA) < Number(timeB)) {
+        return -1;
+      }
+      if (Number(timeA) > Number(timeB)) {
+        return 1;
+      }
+      return 0;
+    });
+
     return { ...event }
 
   }
