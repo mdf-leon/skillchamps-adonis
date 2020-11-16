@@ -237,18 +237,21 @@ class ManageEventController {
     event = event.toJSON()
 
     // let filtered = []
-    console.log(event.riders.length);
     for (let i = 0; i < event.riders.length; i++) {
       event.riders[i].scores =
         event.riders[i].scores.filter(score => {
-          console.log(score);
           return score.trial.id == get.trial_id
         })[0]
     }
 
-    event.riders.sort(function(riderA, riderB) {
-      let timeA = riderA.scores.time_total
-      let timeB = riderB.scores.time_total
+    // if(!event.riders[1]) console.log("a")
+    console.log(event.riders)
+    event.riders.sort(function (riderA, riderB) {
+
+      let timeA = riderA.scores ? riderA.scores.time_total : null
+      let timeB = riderB.scores ? riderB.scores.time_total : null
+      if(!timeA) return 1
+      if(!timeB) return -1
       if (Number(timeA) < Number(timeB)) {
         return -1;
       }
@@ -258,7 +261,9 @@ class ManageEventController {
       return 0;
     });
 
+
     return { ...event }
+
 
   }
 
