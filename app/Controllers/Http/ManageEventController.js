@@ -277,17 +277,20 @@ class ManageEventController {
 
     event = event.toJSON()
 
-    let filtered = []
-
+    // let filtered = []
+    console.log(event.riders.length);
     for (let i = 0; i < event.riders.length; i++) {
-        filtered.push(event.riders[i].scores.filter( score => 
-          score.trial.is == get.trial_id
-        ))
+      event.riders[i].scores =
+        event.riders[i].scores.filter(score => {
+          console.log(score);
+          return score.trial.id == get.trial_id
+        })[0]
     }
 
     return { ...event }
 
   }
+
   async addScore({ request, response, auth }) {
     const data = request.only([
       'rider_id',
