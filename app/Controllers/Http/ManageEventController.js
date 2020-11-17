@@ -250,8 +250,8 @@ class ManageEventController {
 
       let timeA = riderA.scores ? riderA.scores.time_total : null
       let timeB = riderB.scores ? riderB.scores.time_total : null
-      if(!timeA) return 1
-      if(!timeB) return -1
+      if (!timeA) return 1
+      if (!timeB) return -1
       if (Number(timeA) < Number(timeB)) {
         return -1;
       }
@@ -261,10 +261,7 @@ class ManageEventController {
       return 0;
     });
 
-
     return { ...event }
-
-
   }
 
   async addScore({ request, response, auth }) {
@@ -317,7 +314,7 @@ class ManageEventController {
     for (let penalty of data.penalties) {
       pens.push(await Penalty.create({ ...penalty, score_id: res.id }))
       const pc = await PenaltyConf.findOrFail(penalty.penalty_conf_id)
-      penaltyTime += pc.time_penalty
+      penaltyTime += (penalty.quantity || 0) * pc.time_penalty
     }
 
     let bons = []
@@ -326,7 +323,7 @@ class ManageEventController {
     for (let bonus of data.bonuses) {
       bons.push(await Bonus.create({ ...bonus, score_id: res.id }))
       const bc = await BonusConf.findOrFail(bonus.bonus_conf_id)
-      bonusTime += bc.time_bonus
+      bonusTime += (bonus.quantity || 0) * bc.time_bonus
     }
 
     res.time_total = Number(res.time) + Number(penaltyTime) - Number(bonusTime)
@@ -334,8 +331,8 @@ class ManageEventController {
 
     res = res.toJSON()
     return response.json({
-      ...res, penaltyTime, penalties: [...pens],
-      bonusTime, bonuses: [...bons]
+      ...res, penaltyTime, bonusTime,
+      penalties: [...pens], bonuses: [...bons]
     })
   }
 
