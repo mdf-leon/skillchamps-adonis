@@ -13,6 +13,7 @@ const Penalty = use('App/Models/Penalty')
 const Bonus = use('App/Models/Bonus')
 //const EntityTag = use('App/Models/EntityTag')
 const Database = use('Database')
+var _ = require('lodash');
 
 class ManageEventController {
 
@@ -83,6 +84,52 @@ class ManageEventController {
       riders = await eventOne.riders().where('riders.id', query.rider_id).first()
     } else {
       riders = await eventOne.riders().fetch()
+    }
+
+    if (!riders) return response.status(500).send({ Erro: "There are no riders on here, populate this wasteland" })
+
+    return response.send(riders)
+
+  }
+
+  async managedRidersList2({ request, response, auth }) {
+
+    const query = request.get()
+
+    let user = await auth.getUser()
+    let institute = await user.institute().fetch()
+    // let event = await Event.findOrFail(query.event_id)
+    let events = await institute.events().fetch()
+    events = events.toJSON()
+    let eventOne;
+    for (let event of events) {
+      if (event.id == query.event_id) {
+        eventOne = await Event.findOrFail(query.event_id)
+      }
+    }
+    if (!eventOne) return response.status(500).send({ Erro: "Unknown event" })
+
+    let riders
+    let filteredRiders = []
+    let filteredRidersNoScore = []
+    if (query.rider_id) {
+      riders = await eventOne.riders().where('riders.id', query.rider_id).first()
+    } else {
+      riders = await eventOne.riders()
+        .with('scores.trial')
+        .fetch()
+      riders = riders.toJSON()
+      for (const rider of riders) {
+        for (const score of rider.scores) {
+          if (score.trial.id == query.trial_id) {
+            filteredRiders.push({ ...rider, scores: { ...score } })
+          } else {
+            filteredRidersNoScore.push({ ...rider, scores: undefined })
+          }
+        }
+      }
+      // filteredRidersNoScore = filteredRidersNoScore.filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i)
+      riders = _.uniqBy([...filteredRiders, ...filteredRidersNoScore], 'id')
     }
 
     if (!riders) return response.status(500).send({ Erro: "There are no riders on here, populate this wasteland" })

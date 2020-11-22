@@ -68,6 +68,7 @@ Route.get('/eventsList', 'EventController.eventsList').middleware('auth')
 Route.get('/managedEventsList', 'ManageEventController.managedEventsList').middleware('auth') // same as /showEvent (?)
 Route.get('/managedTrialsList', 'ManageEventController.managedTrialsList').middleware('auth') 
 Route.get('/managedRidersList', 'ManageEventController.managedRidersList').middleware('auth') 
+Route.get('/managedRidersList2', 'ManageEventController.managedRidersList2').middleware('auth') 
 Route.get('/managedPenaltyConfsFromTrial', 'ManageEventController.managedPenaltyConfsFromTrial').middleware('auth') 
 Route.get('/managedBonusConfsFromTrial', 'ManageEventController.managedBonusConfsFromTrial').middleware('auth') 
 Route.post('/sendScore', 'ManageEventController.sendScore').middleware('auth') // coraçao da aplicaçao
