@@ -34,6 +34,7 @@ HASH_DRIVER=bcrypt
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use('Route')
 
+//- MVP ROUTES
 Route.get('/a', ({response}) => {
     return {a:"b bb b bs"}
 });
@@ -79,3 +80,5 @@ Route.post('/addScore', 'ManageEventController.addScore').middleware('auth')
 Route.get('/fullRanking/:event_id', 'ManageEventController.fullRanking').middleware('auth')
 Route.get('/fullRanking2', 'ManageEventController.fullRanking2').middleware('auth')
 
+//- BETA ROUTES
+Route.resource('/score', 'ScoreController').middleware('auth')
