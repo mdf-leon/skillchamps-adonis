@@ -134,7 +134,7 @@ class ManageEventController {
 
     if (!riders) return response.status(500).send({ Erro: "There are no riders on here, populate this wasteland" })
 
-    return response.send(riders)
+    return response.send(riders.reverse())
 
   }
 
