@@ -120,16 +120,19 @@ class ManageEventController {
         .fetch()
       riders = riders.toJSON()
       for (const rider of riders) {
+        if(!rider.scores[0]){
+          filteredRidersNoScore.push({ ...rider, scores: undefined })
+        }
         for (const score of rider.scores) {
           if (score.trial.id == query.trial_id) {
             filteredRiders.push({ ...rider, scores: { ...score } })
-          } else {
-            filteredRidersNoScore.push({ ...rider, scores: undefined })
-          }
+          } 
         }
       }
       // filteredRidersNoScore = filteredRidersNoScore.filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i)
       riders = _.uniqBy([...filteredRiders, ...filteredRidersNoScore], 'id')
+      // riders = [...filteredRiders, ...filteredRidersNoScore]
+      // riders = filteredRiders
     }
 
     if (!riders) return response.status(500).send({ Erro: "There are no riders on here, populate this wasteland" })
