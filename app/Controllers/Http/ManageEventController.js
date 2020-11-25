@@ -14,6 +14,7 @@ const Bonus = use('App/Models/Bonus')
 //const EntityTag = use('App/Models/EntityTag')
 const Database = use('Database')
 var _ = require('lodash');
+var { Duration } = require('luxon');
 
 class ManageEventController {
 
@@ -120,13 +121,13 @@ class ManageEventController {
         .fetch()
       riders = riders.toJSON()
       for (const rider of riders) {
-        if(!rider.scores[0]){
+        if (!rider.scores[0]) {
           filteredRidersNoScore.push({ ...rider, scores: undefined })
         }
         for (const score of rider.scores) {
           if (score.trial.id == query.trial_id) {
             filteredRiders.push({ ...rider, scores: { ...score } })
-          } 
+          }
         }
       }
       // filteredRidersNoScore = filteredRidersNoScore.filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i)
@@ -310,6 +311,63 @@ class ManageEventController {
       }
       return 0;
     });
+
+    return { ...event }
+  }
+
+  msToDefault = (ms) => {
+    const duration = Duration.fromObject({ milliseconds: ms })
+      .normalize()
+      .shiftTo('minutes', 'seconds', 'milliseconds')
+      .toObject();
+    const minutesT = `${duration.minutes}`.padStart(2, '0');
+    const secondsT = `${duration.seconds}`.padStart(2, '0');
+    const millisecondsT = `${duration.milliseconds}`.padEnd(3, '0');
+    const timeT = `${minutesT}:${secondsT}.${millisecondsT}`;
+    return timeT;
+  };
+
+  async fullRanking3({ request, params, response, auth }) {
+    const get = request.get()
+    // .innerJoin('accounts', 'user.id', 'accounts.user_id')
+    let event = await Event.query()
+      .with('riders.scores.trial')
+      .with('riders.scores.penalties')
+      .with('riders.scores.bonuses')
+      .where({ id: get.event_id })
+      .first()
+
+    event = event.toJSON()
+
+    // let filtered = []
+    for (let i = 0; i < event.riders.length; i++) {
+      event.riders[i].scores =
+        event.riders[i].scores.filter(score => {
+          return score.trial.id == get.trial_id
+        })[0]
+    }
+
+    // if(!event.riders[1]) console.log("a")
+    console.log(event.riders)
+    event.riders.sort(function (riderA, riderB) {
+
+      let timeA = riderA.scores ? riderA.scores.time_total : null
+      let timeB = riderB.scores ? riderB.scores.time_total : null
+      if (!timeA) return 1
+      if (!timeB) return -1
+      if (Number(timeA) < Number(timeB)) {
+        return -1;
+      }
+      if (Number(timeA) > Number(timeB)) {
+        return 1;
+      }
+      return 0;
+    });
+
+    for (const i in event.riders) {
+      event.riders[i].position = Number(i) + 1
+      event.riders[i].treated_time_total = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time_total : 0)
+    }
 
     return { ...event }
   }
