@@ -203,7 +203,7 @@ class ScoreController {
       bonusTime += (bonus.quantity || 0) * bc.time_bonus
     }
 
-    res.time_total = Number(res.time) + Number(penaltyTime) - Number(bonusTime)
+    res.time_total = Number(res.time) + Number(penaltyTime) - Number(bonusTime) 
     await res.save()
 
     res = res.toJSON()

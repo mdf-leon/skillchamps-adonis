@@ -348,7 +348,7 @@ class ManageEventController {
     }
 
     // if(!event.riders[1]) console.log("a")
-    console.log(event.riders)
+    // console.log(event.riders)
     event.riders.sort(function (riderA, riderB) {
 
       let timeA = riderA.scores ? riderA.scores.time_total : null
@@ -367,6 +367,7 @@ class ManageEventController {
     for (const i in event.riders) {
       event.riders[i].position = Number(i) + 1
       event.riders[i].treated_time_total = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time_total : 0)
+      event.riders[i].treated_time = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time : 0)
     }
 
     return { ...event }
