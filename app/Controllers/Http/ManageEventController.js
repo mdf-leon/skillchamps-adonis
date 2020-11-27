@@ -365,10 +365,19 @@ class ManageEventController {
     });
 
     for (const i in event.riders) {
+      if(get.category && event.riders[i].category !== get.category){
+        // event.riders[i] = undefined
+        delete event.riders[i]
+        continue
+      }
       event.riders[i].position = Number(i) + 1
       event.riders[i].treated_time_total = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time_total : 0)
       event.riders[i].treated_time = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time : 0)
     }
+
+    event.riders = event.riders.filter(function (el) {
+      return el != null;
+    });
 
     return { ...event }
   }
