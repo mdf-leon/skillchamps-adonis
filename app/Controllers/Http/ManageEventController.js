@@ -386,7 +386,8 @@ class ManageEventController {
 
     const { events_request } = request.post()
     const total_events = []
-    let riders_points = []
+    let riders_points = {}
+    let r_p_final = []
     for (const even of events_request) {
       let event = await Event.query()
         .with('riders.scores.trial')
@@ -420,7 +421,7 @@ class ManageEventController {
         }
         return 0;
       });
-
+      const points = [100, 80, 60, 40, 20, 5];
       for (const i in event.riders) {
         // console.log(riders_points);
         if (even.category && event.riders[i].category !== even.category) {
@@ -431,54 +432,14 @@ class ManageEventController {
         event.riders[i].position = Number(i) + 1
         event.riders[i].treated_time_total = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time_total : 0)
         event.riders[i].treated_time = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time : 0)
-        console.log(event.riders[i].id);
-        switch (event.riders[i].position) {
-          case 1:
-            // riders_points[event.riders[i].id] = riders_points[event.riders[i].id] == undefined ? 0 : 0
-            riders_points.push({
-              id: event.riders[i].id,
-              name: event.riders[i].name,
-              points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + 100 : 100
-            })
-            break;
-          case 2:
-            riders_points[event.riders[i].id] = {
-              id: event.riders[i].id,
-              name: event.riders[i].name,
-              points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + 80 : 80
-            }
-            break;
-          case 3:
-            riders_points[event.riders[i].id] = {
-              id: event.riders[i].id,
-              name: event.riders[i].name,
-              points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + 60 : 60
-            }
-            break;
-          case 4:
-            riders_points[event.riders[i].id] = {
-              id: event.riders[i].id,
-              name: event.riders[i].name,
-              points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + 40 : 40
-            }
-            break;
-          case 5:
-            riders_points[event.riders[i].id] = {
-              id: event.riders[i].id,
-              name: event.riders[i].name,
-              points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + 20 : 20
-            }
-            break;
-          case 6:
-            riders_points[event.riders[i].id] = {
-              id: event.riders[i].id,
-              name: event.riders[i].name,
-              points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + 5 : 5
-            }
-            break;
+        // console.log(event.riders[i].id);
 
-          default:
-            break;
+        if (event.riders[i].scores) {
+          riders_points[event.riders[i].id] = {
+            id: event.riders[i].id,
+            name: event.riders[i].name,
+            points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + points[i] : points[i]
+          }
         }
       }
 
@@ -486,14 +447,62 @@ class ManageEventController {
         return el != null;
       });
 
-      riders_points = riders_points.filter(function (el) {
-        return el != null;
-      });
+
+
+
+      // riders_points = {...riders_points}
+      // for (const rider in riders_points) {
+      //   r_p_final.push(riders_points[rider])
+      // }
+
+
+      // riders_points = riders_points.filter(function (el) {
+      //   return el != null;
+      // });
+
+
+      // for (const r_p in riders_points) {
+      //   r_p_final[r_p] = (riders_points[r_p])
+      // }
+
+      // r_p_final = r_p_final.filter(function (el) {
+      //   return el != null;
+      // });
 
       total_events.push({ ...event })
     }
 
-    return { riders_points, total_events }
+    Object.keys(riders_points).forEach(function (key) {
+      r_p_final.push(riders_points[key]);
+    });
+
+    r_p_final.sort(function (riderA, riderB) {
+      let pointA = riderA.points
+      let pointB = riderB.points
+      // if (!pointA) return -1
+      // if (!pointB) return 1
+      if (Number(pointA) < Number(pointB)) {
+        return 1;
+      }
+      if (Number(pointA) > Number(pointB)) {
+        return -1;
+      }
+      return 0;
+    });
+
+    let the_cone_master = r_p_final.map(function (rp, i) {
+      if (i === 0) {
+        return rp
+      } else if (rp.points === r_p_final[i - 1].points) {
+        return rp
+      } 
+    })
+
+    the_cone_master = the_cone_master.filter(function (el) {
+      return el != null;
+    });
+
+    return { the_cone_master, r_p_final, total_events }
   }
 
   async addScore({ request, response, auth }) {
