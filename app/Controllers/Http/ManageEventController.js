@@ -365,7 +365,7 @@ class ManageEventController {
     });
 
     for (const i in event.riders) {
-      if (get.category && event.riders[i].category !== get.category) {
+      if (get.category && get.category !== "null" && event.riders[i].category !== get.category) {
         // event.riders[i] = undefined
         delete event.riders[i]
         continue
