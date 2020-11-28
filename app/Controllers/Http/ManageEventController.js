@@ -365,7 +365,7 @@ class ManageEventController {
     });
 
     for (const i in event.riders) {
-      if(get.category && event.riders[i].category !== get.category){
+      if (get.category && event.riders[i].category !== get.category) {
         // event.riders[i] = undefined
         delete event.riders[i]
         continue
@@ -380,6 +380,120 @@ class ManageEventController {
     });
 
     return { ...event }
+  }
+
+  async allRanking({ request, params, response, auth }) {
+
+    const { events_request } = request.post()
+    const total_events = []
+    let riders_points = []
+    for (const even of events_request) {
+      let event = await Event.query()
+        .with('riders.scores.trial')
+        .with('riders.scores.penalties')
+        .with('riders.scores.bonuses')
+        .where({ id: even.event_id })
+        .first()
+
+      event = event.toJSON()
+
+      // let filtered = []
+      for (let i = 0; i < event.riders.length; i++) {
+        event.riders[i].scores =
+          event.riders[i].scores.filter(score => {
+            return score.trial.id == even.trial_id
+          })[0]
+      }
+
+      // if(!event.riders[1]) console.log("a")
+      // console.log(event.riders)
+      event.riders.sort(function (riderA, riderB) {
+        let timeA = riderA.scores ? riderA.scores.time_total : null
+        let timeB = riderB.scores ? riderB.scores.time_total : null
+        if (!timeA) return 1
+        if (!timeB) return -1
+        if (Number(timeA) < Number(timeB)) {
+          return -1;
+        }
+        if (Number(timeA) > Number(timeB)) {
+          return 1;
+        }
+        return 0;
+      });
+
+      for (const i in event.riders) {
+        // console.log(riders_points);
+        if (even.category && event.riders[i].category !== even.category) {
+          // event.riders[i] = undefined
+          delete event.riders[i]
+          continue
+        }
+        event.riders[i].position = Number(i) + 1
+        event.riders[i].treated_time_total = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time_total : 0)
+        event.riders[i].treated_time = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time : 0)
+        console.log(event.riders[i].id);
+        switch (event.riders[i].position) {
+          case 1:
+            // riders_points[event.riders[i].id] = riders_points[event.riders[i].id] == undefined ? 0 : 0
+            riders_points.push({
+              id: event.riders[i].id,
+              name: event.riders[i].name,
+              points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + 100 : 100
+            })
+            break;
+          case 2:
+            riders_points[event.riders[i].id] = {
+              id: event.riders[i].id,
+              name: event.riders[i].name,
+              points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + 80 : 80
+            }
+            break;
+          case 3:
+            riders_points[event.riders[i].id] = {
+              id: event.riders[i].id,
+              name: event.riders[i].name,
+              points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + 60 : 60
+            }
+            break;
+          case 4:
+            riders_points[event.riders[i].id] = {
+              id: event.riders[i].id,
+              name: event.riders[i].name,
+              points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + 40 : 40
+            }
+            break;
+          case 5:
+            riders_points[event.riders[i].id] = {
+              id: event.riders[i].id,
+              name: event.riders[i].name,
+              points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + 20 : 20
+            }
+            break;
+          case 6:
+            riders_points[event.riders[i].id] = {
+              id: event.riders[i].id,
+              name: event.riders[i].name,
+              points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + 5 : 5
+            }
+            break;
+
+          default:
+            break;
+        }
+      }
+
+      event.riders = event.riders.filter(function (el) {
+        return el != null;
+      });
+
+      riders_points = riders_points.filter(function (el) {
+        return el != null;
+      });
+
+      total_events.push({ ...event })
+    }
+
+    return { riders_points, total_events }
   }
 
   async addScore({ request, response, auth }) {
