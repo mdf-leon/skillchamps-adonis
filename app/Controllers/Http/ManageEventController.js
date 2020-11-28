@@ -332,8 +332,8 @@ class ManageEventController {
     // .innerJoin('accounts', 'user.id', 'accounts.user_id')
     let event = await Event.query()
       .with('riders.scores.trial')
-      .with('riders.scores.penalties')
-      .with('riders.scores.bonuses')
+      .with('riders.scores.penalties.penaltyConf')
+      .with('riders.scores.bonuses.bonusConf')
       .where({ id: get.event_id })
       .first()
 
@@ -370,9 +370,26 @@ class ManageEventController {
         delete event.riders[i]
         continue
       }
+
       event.riders[i].position = Number(i) + 1
       event.riders[i].treated_time_total = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time_total : 0)
       event.riders[i].treated_time = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time : 0)
+
+      event.riders[i].penalty_time = 0
+      for (const p in event.riders[i].scores.penalties) {
+        const temp_p = event.riders[i].scores.penalties[p]
+        event.riders[i].penalty_time
+          += temp_p.quantity * temp_p.penaltyConf.time_penalty
+      }
+      event.riders[i].penalty_time = this.msToDefault(event.riders[i].penalty_time)
+
+      event.riders[i].bonus_time = 0
+      for (const p in event.riders[i].scores.bonuses) {
+        const temp_p = event.riders[i].scores.bonuses[p]
+        event.riders[i].bonus_time
+          += temp_p.quantity * temp_p.bonusConf.time_bonus
+      }
+      event.riders[i].bonus_time = this.msToDefault(event.riders[i].bonus_time)
     }
 
     event.riders = event.riders.filter(function (el) {
@@ -495,7 +512,7 @@ class ManageEventController {
         return rp
       } else if (rp.points === r_p_final[i - 1].points) {
         return rp
-      } 
+      }
     })
 
     the_cone_master = the_cone_master.filter(function (el) {
