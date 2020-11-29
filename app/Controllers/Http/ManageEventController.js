@@ -365,7 +365,7 @@ class ManageEventController {
     });
 
     for (const i in event.riders) {
-      if (get.category && get.category !== "null" && event.riders[i].category !== get.category) {
+      if (get.category && get.category !== "null" && get.category !== "none" && event.riders[i].category !== get.category) {
         // event.riders[i] = undefined
         delete event.riders[i]
         continue
@@ -445,7 +445,7 @@ class ManageEventController {
       const points = [100, 80, 60, 40, 20, 5];
       for (const i in event.riders) {
         // console.log(riders_points);
-        if (even.category && event.riders[i].category !== even.category) {
+        if (even.category && even.category !== "null" && even.category !== "none" && event.riders[i].category !== even.category) {
           // event.riders[i] = undefined
           delete event.riders[i]
           continue
