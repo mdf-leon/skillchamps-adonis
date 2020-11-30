@@ -327,6 +327,34 @@ class ManageEventController {
     return timeT;
   };
 
+  sortLessTime(riderA, riderB) {
+    let timeA = riderA.scores ? riderA.scores.time_total : null
+    let timeB = riderB.scores ? riderB.scores.time_total : null
+    if (!timeA) return 1
+    if (!timeB) return -1
+    if (Number(timeA) < Number(timeB)) {
+      return -1;
+    }
+    if (Number(timeA) > Number(timeB)) {
+      return 1;
+    }
+    return 0;
+  }
+
+  sortMoreTime(riderA, riderB) { // for inverted trial, or slowride
+    let timeA = riderA.scores ? riderA.scores.time_total : null
+    let timeB = riderB.scores ? riderB.scores.time_total : null
+    if (!timeA) return 1
+    if (!timeB) return -1
+    if (Number(timeA) < Number(timeB)) {
+      return -1;
+    }
+    if (Number(timeA) > Number(timeB)) {
+      return 1;
+    }
+    return 0;
+  }
+
   async fullRanking3({ request, params, response, auth }) {
     const get = request.get()
     // .innerJoin('accounts', 'user.id', 'accounts.user_id')
@@ -417,6 +445,7 @@ class ManageEventController {
         .where({ id: even.event_id })
         .first()
 
+      event.category_chosen = even.category
       event = event.toJSON()
 
       // let filtered = []
@@ -429,19 +458,13 @@ class ManageEventController {
 
       // if(!event.riders[1]) console.log("a")
       // console.log(event.riders)
-      event.riders.sort(function (riderA, riderB) {
-        let timeA = riderA.scores ? riderA.scores.time_total : null
-        let timeB = riderB.scores ? riderB.scores.time_total : null
-        if (!timeA) return 1
-        if (!timeB) return -1
-        if (Number(timeA) < Number(timeB)) {
-          return -1;
-        }
-        if (Number(timeA) > Number(timeB)) {
-          return 1;
-        }
-        return 0;
-      });
+      // event.riders.sort(event.riders[0].scores && event.riders[0].scores.trial.inverted ? this.sortMoreTime : this.sortLessTime);
+      event.riders.sort(this.sortLessTime)
+      event.trial_name = event.riders[0].scores.trial.name
+      if(event.riders[0].scores.trial.inverted){
+        event.riders.reverse();
+      }
+      
       const points = [100, 80, 60, 40, 20, 5];
       for (const i in event.riders) {
         // console.log(riders_points);

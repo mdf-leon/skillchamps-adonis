@@ -8,6 +8,7 @@ class TrialSchema extends Schema {
     this.create('trials', (table) => {
       table.increments()
       table.integer('event_id').unsigned().references('id').inTable('events') // FK
+      table.boolean('inverted').unsigned().defaultTo(false)
       table.string('name')
       table.timestamps()
     })
