@@ -454,20 +454,32 @@ class ManageEventController {
           event.riders[i].scores.filter(score => {
             return score.trial.id == even.trial_id
           })[0]
+        if (!event.riders[i].scores) {
+          delete event.riders[i]
+        }
       }
+
+
 
       // if(!event.riders[1]) console.log("a")
       // console.log(event.riders)
       // event.riders.sort(event.riders[0].scores && event.riders[0].scores.trial.inverted ? this.sortMoreTime : this.sortLessTime);
       event.riders.sort(this.sortLessTime)
       event.trial_name = event.riders[0].scores.trial.name
-      if(event.riders[0].scores.trial.inverted){
+      if (event.riders[0].scores.trial.inverted) {
         event.riders.reverse();
       }
-      
+
+      // for (let i = 0; i < event.riders.length; i++) {
+
+      // }
+      event.riders = event.riders.filter(function (el) { // DELETES EMPTY POSITIONS IN ARRAY
+        return el != null;
+      });
+
       const points = [100, 80, 60, 40, 20, 5];
       for (const i in event.riders) {
-        // console.log(riders_points);
+        console.log(event.riders);
         if (even.category && even.category !== "null" && even.category !== "none" && event.riders[i].category !== even.category) {
           // event.riders[i] = undefined
           delete event.riders[i]
@@ -487,7 +499,7 @@ class ManageEventController {
         }
       }
 
-      event.riders = event.riders.filter(function (el) {
+      event.riders = event.riders.filter(function (el) { // TODO: check necessity
         return el != null;
       });
 
