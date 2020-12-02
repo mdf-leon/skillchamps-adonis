@@ -525,7 +525,6 @@ class ManageEventController {
 
       const points = [100, 80, 60, 40, 20, 5];
       for (const i in event.riders) {
-        console.log(event.riders);
         if (even.category && even.category !== "null" && even.category !== "none" && event.riders[i].category !== even.category) {
           // event.riders[i] = undefined
           delete event.riders[i]
@@ -536,8 +535,8 @@ class ManageEventController {
         event.riders[i].treated_time = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time : 0)
         // console.log(event.riders[i].id);
 
-        if (event.riders[i].scores) {
-          riders_points[event.riders[i].id] = {
+        if (event.riders[i].scores && points[i]) {
+          riders_points[event.riders[i].id.toString()] = {
             id: event.riders[i].id,
             name: event.riders[i].name,
             points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + points[i] : points[i]
@@ -591,11 +590,10 @@ class ManageEventController {
       }
       return 0;
     });
-
     let the_cone_master = r_p_final.map(function (rp, i) {
       if (i === 0) {
         return rp
-      } else if (rp.points === r_p_final[i - 1].points) {
+      } else if (rp.points === r_p_final[0].points) {
         return rp
       }
     })
