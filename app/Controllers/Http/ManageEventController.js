@@ -492,6 +492,7 @@ class ManageEventController {
         .first()
 
       event.category_chosen = even.category
+      event.category2_chosen = even.category2
       event = event.toJSON()
 
       // let filtered = []
@@ -529,6 +530,9 @@ class ManageEventController {
           // event.riders[i] = undefined
           delete event.riders[i]
           continue
+        }
+        if (even.category2 && even.category2 !== "null" && even.category2 !== "none" && event.riders[i].category2 !== even.category2) {
+          delete event.riders[i]; continue;
         }
         event.riders[i].position = Number(i) + 1
         event.riders[i].treated_time_total = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time_total : 0)
