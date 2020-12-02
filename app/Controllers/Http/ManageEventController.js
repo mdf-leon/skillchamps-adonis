@@ -142,6 +142,52 @@ class ManageEventController {
 
   }
 
+  async managedRidersList3({ request, response, auth }) {
+
+    const query = request.get()
+
+    let user = await auth.getUser()
+    let institute = await user.institute().fetch()
+    // let event = await Event.findOrFail(query.event_id)
+    let events = await institute.events().fetch()
+    events = events.toJSON()
+    let eventOne;
+    for (let event of events) {
+      if (event.id == query.event_id) {
+        eventOne = await Event.findOrFail(query.event_id)
+      }
+    }
+    if (!eventOne) return response.status(500).send({ Erro: "Unknown event" })
+
+    let riders
+    let filteredRiders = []
+    let filteredRidersNoScore = []
+    if (query.rider_id) {
+      riders = await eventOne.riders().where('riders.id', query.rider_id).first()
+    } else {
+      riders = await eventOne.riders()
+        .with('scores.trial')
+        .fetch()
+      riders = riders.toJSON()
+      for (const rider of riders) {
+        if (!rider.scores.find(score => score.trial.id == query.trial_id)) {
+          filteredRidersNoScore.push({ ...rider, scores: undefined })
+        }
+        for (const score of rider.scores) {
+          if (score.trial.id == query.trial_id) {
+            filteredRiders.push({ ...rider, scores: { ...score } })
+          }
+        }
+      }
+      riders = _.uniqBy([...filteredRiders, ...filteredRidersNoScore], 'id')
+    }
+
+    if (!riders) return response.status(500).send({ Erro: "There are no riders on here, populate this wasteland" })
+
+    return response.send(riders.reverse())
+
+  }
+
   async managedBonusConfsFromTrial({ request, response, auth }) {
     //assumo que o evento está acontecendo
     //esta rota apenas procura as trials do admin

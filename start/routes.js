@@ -70,6 +70,7 @@ Route.get('/managedEventsList', 'ManageEventController.managedEventsList').middl
 Route.get('/managedTrialsList', 'ManageEventController.managedTrialsList').middleware('auth') 
 Route.get('/managedRidersList', 'ManageEventController.managedRidersList').middleware('auth') 
 Route.get('/managedRidersList2', 'ManageEventController.managedRidersList2').middleware('auth') 
+Route.get('/managedRidersList3', 'ManageEventController.managedRidersList3').middleware('auth') 
 Route.get('/managedPenaltyConfsFromTrial', 'ManageEventController.managedPenaltyConfsFromTrial').middleware('auth') 
 Route.get('/managedBonusConfsFromTrial', 'ManageEventController.managedBonusConfsFromTrial').middleware('auth') 
 Route.post('/sendScore', 'ManageEventController.sendScore').middleware('auth') // coraçao da aplicaçao
