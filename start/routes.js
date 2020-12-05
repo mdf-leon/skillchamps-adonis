@@ -76,7 +76,7 @@ Route.get('/managedBonusConfsFromTrial', 'ManageEventController.managedBonusConf
 Route.post('/sendScore', 'ManageEventController.sendScore').middleware('auth') // coraçao da aplicaçao
 Route.get('/showScore', 'ManageEventController.showScore').middleware('auth') // coraçao da aplicaçao
 
-Route.get('/trial/:trial_id', 'ManageEventController.getTrial').middleware('auth')
+Route.get('/trial/:trial_id', 'ManageEventController.getTrial')
 Route.post('/createTrial', 'ManageEventController.createTrial').middleware('auth')
 Route.post('/addScore', 'ManageEventController.addScore').middleware('auth')
 Route.get('/fullRanking/:event_id', 'ManageEventController.fullRanking').middleware('auth')
