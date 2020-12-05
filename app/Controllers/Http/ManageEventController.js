@@ -27,6 +27,10 @@ class ManageEventController {
     return response.send(events)
   }
 
+  async getTrial({ request, response, params, auth }) {
+    return await Trial.findOrFail(params.trial_id)
+  }
+
   async managedTrialsList({ request, response, auth }) {
 
     const query = request.get()
