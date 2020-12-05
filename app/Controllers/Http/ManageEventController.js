@@ -256,6 +256,72 @@ class ManageEventController {
     return response.send(penalties)
   }
 
+  async managedBonusConfsFromTrial2({ request, response, params }) {
+    //assumo que o evento está acontecendo
+    //esta rota apenas procura as trials do admin
+
+    const query = request.get()
+
+    let user = await User.findOrFail(params.user_id)
+    let institute = await user.institute().fetch()
+    let events = await institute.events().fetch()
+    events = events.toJSON()
+    let trial
+    for (let event of events) {
+      if (event.id == query.event_id) {
+
+        let eventTemp = await Event.findOrFail(query.event_id)
+        let trials = await eventTemp.trials().fetch()
+        trials = trials.toJSON()
+        for (let trialL of trials) {
+          if (trialL.id == query.trial_id) {
+            trial = await Trial.findOrFail(query.trial_id)
+          }
+        }
+
+      }
+    }
+    if (!trial) return response.status(400).send({ "bad_request": "sure this trial exist?" })
+    let bonuses = await trial.bonusConfs().fetch()
+
+
+    return response.send(bonuses)
+  }
+
+  async managedPenaltyConfsFromTrial2({ request, response, params }) {
+    //assumo que o evento está acontecendo
+    //esta rota apenas procura as trials do admin
+
+    const query = request.get()
+
+    let user = await User.findOrFail(params.user_id)
+    let institute = await user.institute().fetch()
+    let events = await institute.events().fetch()
+    events = events.toJSON()
+    let trial
+    for (let event of events) {
+      if (event.id == query.event_id) {
+
+        let eventTemp = await Event.findOrFail(query.event_id)
+        let trials = await eventTemp.trials().fetch()
+        trials = trials.toJSON()
+        for (let trialL of trials) {
+          if (trialL.id == query.trial_id) {
+            trial = await Trial.findOrFail(query.trial_id)
+          }
+        }
+
+      }
+    }
+    if (!trial) return response.status(400).send({ "bad_request": "sure this trial exist?" })
+    let penalties = await trial.penaltyConfs().fetch()
+
+
+    return response.send(penalties)
+  }
+
+
+
   async sendScore({ request, response, auth }) {
 
     const data = request.all()

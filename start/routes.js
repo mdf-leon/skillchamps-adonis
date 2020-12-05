@@ -73,6 +73,8 @@ Route.get('/managedRidersList2', 'ManageEventController.managedRidersList2').mid
 Route.get('/managedRidersList3', 'ManageEventController.managedRidersList3').middleware('auth') 
 Route.get('/managedPenaltyConfsFromTrial', 'ManageEventController.managedPenaltyConfsFromTrial').middleware('auth') 
 Route.get('/managedBonusConfsFromTrial', 'ManageEventController.managedBonusConfsFromTrial').middleware('auth') 
+Route.get('/managedPenaltyConfsFromTrial2/:user_id', 'ManageEventController.managedPenaltyConfsFromTrial2')
+Route.get('/managedBonusConfsFromTrial2/:user_id', 'ManageEventController.managedBonusConfsFromTrial2')
 Route.post('/sendScore', 'ManageEventController.sendScore').middleware('auth') // coraçao da aplicaçao
 Route.get('/showScore', 'ManageEventController.showScore').middleware('auth') // coraçao da aplicaçao
 
