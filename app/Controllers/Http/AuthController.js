@@ -20,12 +20,11 @@ class AuthController {
                 delete user.password;
                 return response.json(user);
             } else {
-                return response.status(401).json({ Error: 'Passwords do not match' })
+                return response.status(400).json({ Error: 'Passwords do not match' })
             }
 
         }).catch((e) => {
-            console.log(e.sqlMessage)
-            return response.status(401).json({ Error: e.sqlMessage })
+            return response.status(500).json({ Error: e.sqlMessage, stack: e.stack, trace: e.trace, msg: e.message })
         })
 
     }

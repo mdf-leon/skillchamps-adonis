@@ -11,6 +11,7 @@ const Score = use('App/Models/Score')
 const Penalty = use('App/Models/Penalty')
 //const EntityTag = use('App/Models/EntityTag')
 const Database = use('Database')
+const fs = require('fs');
 
 class EventController {
 
@@ -47,11 +48,11 @@ class EventController {
     const event = await Event.find(parameters.event_id)
     const rider = await Rider.create(rdata);
     if (!parameters.event_id) response.status(400).json('parameters.event_id is missing')
-    if (!event || !rider) return response.status(500).json({error: 'event not found or rider could not be created'})
+    if (!event || !rider) return response.status(500).json({ error: 'event not found or rider could not be created' })
     await event.riders().attach(rider.id)
 
     return response.json({ rider, event });
-}
+  }
 
   async signToEvent({ request, response, auth }) {
 
@@ -97,6 +98,7 @@ class EventController {
     const eventData = request.only([
       'event_name', //event name
       'date_begin',
+      'date_begin',
       //'date_end',
     ]);
 
@@ -118,6 +120,19 @@ class EventController {
 
 
   }
+
+  async uploadEventPhoto({ request, response, params, auth }) {
+    const photo_event = request.file('photo_event')
+    const photo_folder = request.file('photo_folder')
+
+    const event = await Event.findOrFail(params.event_id)
+    event.photo_event = photo_event && fs.readFileSync(photo_event.tmpPath, { encoding: 'base64' });
+    event.photo_folder = photo_folder && fs.readFileSync(photo_folder.tmpPath, { encoding: 'base64' });
+    await event.save()
+    return await { photo_event, photo_folder }
+  }
+
+
 }
 
 module.exports = EventController
