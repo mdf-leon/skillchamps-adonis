@@ -35,9 +35,16 @@ class AuthController {
         const { email, password } = request.all();
 
         const token = await auth.attempt(email, password);
+        if (token) {
+            const user = await User.findByOrFail({ email })
+            const userInfo = { id: user.id, email: user.email }
+            const rider = await user.rider().fetch()
+            return { ...token, user: userInfo, rider }
+        }
+        //retorna o erro do token
         return token
         // const tok = await Token.findOrFail(token.id);
-        // return tok
+        // // return tok
         // const user = await tok.user().fetch()
         // return {...token, user: {...user}};
     }

@@ -86,12 +86,17 @@ class EventController {
 
   }
 
+  // async showEvent({ request, response, auth }) { // legacy
+  //   let user = await auth.getUser()
+  //   let institute = await user.institute().fetch()
+  //   let events = await institute.events().fetch()
+  //   // console.log(events)
+  //   return response.send(events)
+  // }
+
   async showEvent({ request, response, auth }) {
-    let user = await auth.getUser()
-    let institute = await user.institute().fetch()
-    let events = await institute.events().fetch()
-    // console.log(events)
-    return response.send(events)
+    const { event_id } = request.get()
+    return Event.findOrFail(event_id)
   }
 
   async createEvent({ request, response, auth }) {
