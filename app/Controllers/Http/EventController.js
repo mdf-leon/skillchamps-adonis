@@ -16,14 +16,27 @@ const fs = require('fs');
 class EventController {
 
   async eventsSigned({ request, response, auth }) {
-    const par = request.get()
+    const parameters = request.get()
     let user = await auth.getUser()
 
     let q = Event.query()
-    if (par.event_id) q = q.where('id', par.event_id)
+    if (parameters.event_id) q = q.where('id', parameters.event_id)
     q = q.whereHas('riders', b => { b.where('user_id', user.id) }) // apenas eventos deste rider logado
       .with('institute') // inclui informaçoes do instituto de cada evento
-    return await par.event_id ? q.first() : q.fetch()
+    return await parameters.event_id ? q.first() : q.fetch()
+  }
+
+  async eventsHistory({ request, response, auth }) {
+    const parameters = request.get()
+    let user = await auth.getUser()
+
+    let rider = await user.rider().fetch()
+    let scores = (await rider.scores().with(`trial.event`).fetch()).toJSON()
+    for (const score of scores) {
+      delete score.trial.event.photo_event
+      
+    }
+    return scores
   }
 
   async eventsList({ request, response, auth }) {
