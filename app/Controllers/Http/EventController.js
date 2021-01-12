@@ -7,10 +7,12 @@ const Entity = use('App/Models/Entity')
 const Event = use('App/Models/Event')
 const Trial = use('App/Models/Trial')
 const PenaltyConf = use('App/Models/PenaltyConf')
+const History = use('App/Models/History')
 const Score = use('App/Models/Score')
 const Penalty = use('App/Models/Penalty')
 //const EntityTag = use('App/Models/EntityTag')
 const Database = use('Database')
+var { Duration } = require('luxon');
 const fs = require('fs');
 
 class EventController {
@@ -26,17 +28,190 @@ class EventController {
     return await parameters.event_id ? q.first() : q.fetch()
   }
 
+
+  msToDefault = (ms) => {
+    const duration = Duration.fromObject({ milliseconds: ms })
+      .normalize()
+      .shiftTo('minutes', 'seconds', 'milliseconds')
+      .toObject();
+    const minutesT = `${duration.minutes}`.padStart(2, '0');
+    const secondsT = `${duration.seconds}`.padStart(2, '0');
+    const millisecondsT = `${duration.milliseconds}`.padEnd(3, '0');
+    const timeT = `${minutesT}:${secondsT}.${millisecondsT}`;
+    return timeT;
+  };
+
+  sortLessTime(riderA, riderB) {
+    let timeA = riderA.scores ? riderA.scores.time_total : null
+    let timeB = riderB.scores ? riderB.scores.time_total : null
+    if (!timeA) return 1
+    if (!timeB) return -1
+    if (Number(timeA) < Number(timeB)) {
+      return -1;
+    }
+    if (Number(timeA) > Number(timeB)) {
+      return 1;
+    }
+    return 0;
+  }
+
+  sortMoreTime(riderA, riderB) { // for inverted trial, or slowride
+    let timeA = riderA.scores ? riderA.scores.time_total : null
+    let timeB = riderB.scores ? riderB.scores.time_total : null
+    if (!timeA) return 1
+    if (!timeB) return -1
+    if (Number(timeA) < Number(timeB)) {
+      return -1;
+    }
+    if (Number(timeA) > Number(timeB)) {
+      return 1;
+    }
+    return 0;
+  }
+
+  async allRanking(events_request) {
+
+    const total_events = []
+    let riders_points = {}
+    let r_p_final = []
+    for (const even of events_request) {
+      let event = await Event.query()
+        .with('riders.scores.trial')
+        .with('riders.scores.penalties')
+        .with('riders.scores.bonuses')
+        .where({ id: even.event_id })
+        .first()
+
+      event.category_chosen = even.category
+      event.category2_chosen = even.category2
+      event = event.toJSON()
+
+      // let filtered = []
+      for (let i = 0; i < event.riders.length; i++) {
+        event.riders[i].scores =
+          event.riders[i].scores.filter(score => {
+            return score.trial.id == even.trial_id
+          })[0]
+        if (!event.riders[i].scores) {
+          delete event.riders[i]
+        }
+      }
+
+      event.riders.sort(this.sortLessTime)
+      event.trial_name = event.riders[0].scores.trial.name
+      if (event.riders[0].scores.trial.inverted) {
+        event.riders.reverse();
+      }
+
+      event.riders = event.riders.filter(function (el) { // DELETES EMPTY POSITIONS IN ARRAY
+        return el != null;
+      });
+
+      const points = [100, 80, 60, 40, 20, 5];
+      for (const i in event.riders) {
+        if (even.category && even.category !== "null" && even.category !== "none" && event.riders[i].category !== even.category) {
+          // event.riders[i] = undefined
+          delete event.riders[i]
+          continue
+        }
+        if (even.category2 && even.category2 !== "null" && even.category2 !== "none" && event.riders[i].category2 !== even.category2) {
+          delete event.riders[i]; continue;
+        }
+        event.riders[i].position = Number(i) + 1
+        event.riders[i].treated_time_total = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time_total : 0)
+        event.riders[i].treated_time = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time : 0)
+        // console.log(event.riders[i].id);
+
+        if (event.riders[i].scores && points[i]) {
+          riders_points[event.riders[i].id.toString()] = {
+            id: event.riders[i].id,
+            name: event.riders[i].name,
+            points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + points[i] : points[i]
+          }
+        }
+      }
+
+      event.riders = event.riders.filter(function (el) { // TODO: check necessity
+        return el != null;
+      });
+
+      total_events.push({ ...event })
+    }
+
+    Object.keys(riders_points).forEach(function (key) {
+      r_p_final.push(riders_points[key]);
+    });
+
+    r_p_final.sort(function (riderA, riderB) {
+      let pointA = riderA.points
+      let pointB = riderB.points
+      // if (!pointA) return -1
+      // if (!pointB) return 1
+      if (Number(pointA) < Number(pointB)) {
+        return 1;
+      }
+      if (Number(pointA) > Number(pointB)) {
+        return -1;
+      }
+      return 0;
+    });
+    let the_cone_master = r_p_final.map(function (rp, i) {
+      if (i === 0) {
+        return rp
+      } else if (rp.points === r_p_final[0].points) {
+        return rp
+      }
+    })
+
+    the_cone_master = the_cone_master.filter(function (el) {
+      return el != null;
+    });
+
+    return { the_cone_master, r_p_final, total_events }
+  }
+
+
+  async finishEvent({ request, response, auth, params }) {
+    const { event_id } = params
+    const history = await History.findByOrFail({ event_id })
+    if (!history && !history.config) {
+      return response.status(400).json({ error: 'cannot make history without "allRanking", please create a config file' })
+    }
+    const allRanks = await this.allRanking(JSON.parse(history.config))
+
+    const finalists = []
+    await allRanks.r_p_final.forEach((position, i) => {
+      position.podium = i + 1
+      finalists.push(position)
+    })
+
+    history.podium = JSON.stringify(finalists)
+    await history.save()
+    return history
+  }
+
   async eventsHistory({ request, response, auth }) {
-    const parameters = request.get()
     let user = await auth.getUser()
 
     let rider = await user.rider().fetch()
-    let scores = (await rider.scores().with(`trial.event`).fetch()).toJSON()
+    let scores = (await rider.scores().with(`trial.event.history`).fetch()).toJSON()
+
+    let queryArray = []
+
     for (const score of scores) {
-      delete score.trial.event.photo_event
-      
+      const podium = JSON.parse(score.trial.event.history.podium).find(pod => pod.id === rider.id)
+
+      const queryObject = {
+        event_id: score.trial.event.id,
+        event_name: score.trial.event.id,
+        institute_name: (await Institute.findOrFail(score.trial.event.institute_id)).toJSON().name,
+        photo_event: score.trial.event.photo_event,
+        history: score.trial.event.history,
+        podium_placement: podium,
+      }
+      queryArray.push(queryObject)
     }
-    return scores
+    return queryArray
   }
 
   async eventsList({ request, response, auth }) {

@@ -9,6 +9,10 @@ class Event extends Model {
     return this.hasMany('App/Models/Trial')
   }
 
+  history() {
+    return this.hasOne('App/Models/History')
+  }
+
   // addresses
 
   riders() {

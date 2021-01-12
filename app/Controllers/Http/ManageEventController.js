@@ -12,6 +12,7 @@ const Score = use('App/Models/Score')
 const Penalty = use('App/Models/Penalty')
 const Bonus = use('App/Models/Bonus')
 //const EntityTag = use('App/Models/EntityTag')
+const History = use('App/Models/History')
 const Database = use('Database')
 var _ = require('lodash');
 var { Duration } = require('luxon');
@@ -550,6 +551,16 @@ class ManageEventController {
   async allRanking({ request, params, response, auth }) {
 
     const { events_request } = request.post()
+
+    try {
+      const history = await History.findByOrFail({ event_id: events_request[0].event_id });
+      history.config = JSON.stringify(events_request);
+      await history.save()
+    } catch (error) {
+      console.log(error)
+      await History.create({ config: JSON.stringify(events_request), event_id: events_request[0].event_id })
+    }
+
     const total_events = []
     let riders_points = {}
     let r_p_final = []
