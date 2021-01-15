@@ -28,6 +28,34 @@ class EventController {
     return await parameters.event_id ? q.first() : q.fetch()
   }
 
+  async events({ request, response, auth }) {
+    const qparams = request.get()
+    let dbquery = Database.table('events')
+
+    if (qparams.event_id) {
+      dbquery = dbquery.where({ id: qparams.event_id }).first()
+    } 
+    if (qparams.event_name) {
+      dbquery = dbquery.where({ event_name: qparams.event_name })
+    } 
+    if (qparams.date_begin) {
+      dbquery = dbquery.where({ date_begin: qparams.date_begin })
+    } 
+    if (qparams.institute_id) {
+      dbquery = dbquery.where({ institute_id: qparams.institute_id })
+    }
+
+
+    const queryResult =  await dbquery.orderBy(qparams.column || 'date_begin', qparams.order_by || 'desc')
+    if(queryResult[0]) {
+      for (const event of queryResult) {
+        const institute = await Institute.findOrFail(event.institute_id)
+        event.institute_name = institute.name
+      }
+    }
+    return queryResult
+  }
+
 
   msToDefault = (ms) => {
     const duration = Duration.fromObject({ milliseconds: ms })

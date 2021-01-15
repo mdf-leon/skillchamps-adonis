@@ -61,6 +61,7 @@ Route.get('/institutesList', 'InstituteController.institutesList').middleware('a
 Route.post('/createEvent', 'EventController.createEvent').middleware('auth')
 Route.put('/uploadEventPhoto/:event_id', 'EventController.uploadEventPhoto').middleware('auth')
 Route.post('/uncontrolledRegister', 'EventController.uncontrolledRegister'); // rider without user
+Route.get('/events', 'EventController.events').middleware('auth') // events list with filter in it // events the admin created
 Route.get('/showEvent', 'EventController.showEvent').middleware('auth') // events the admin created
 Route.get('/eventsHistory', 'EventController.eventsHistory').middleware('auth') // events history from a rider
 Route.post('/signToEvent', 'EventController.signToEvent').middleware('auth')
