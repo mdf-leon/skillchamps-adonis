@@ -34,23 +34,23 @@ class EventController {
 
     if (qparams.event_id) {
       dbquery = dbquery.where({ id: qparams.event_id }).first()
-    } 
+    }
     if (qparams.event_name) {
       // TODO: testar: https://forum.adonisjs.com/t/query-for-searching-word-in-column/1178
       // https://stackoverflow.com/questions/44185803/adonis-js-search-queries
       // old: dbquery = dbquery.where({ event_name: qparams.event_name })
-      dbquery = dbquery.where('event_name', 'LIKE', '%'+qparams.event_name+'%')
-    } 
+      dbquery = dbquery.where('event_name', 'LIKE', '%' + qparams.event_name + '%')
+    }
     if (qparams.date_begin) {
       dbquery = dbquery.where({ date_begin: qparams.date_begin })
-    } 
+    }
     if (qparams.institute_id) {
       dbquery = dbquery.where({ institute_id: qparams.institute_id })
     }
 
 
-    const queryResult =  await dbquery.orderBy(qparams.column || 'date_begin', qparams.order_by || 'desc')
-    if(queryResult[0]) {
+    const queryResult = await dbquery.orderBy(qparams.column || 'date_begin', qparams.order_by || 'desc')
+    if (queryResult[0]) {
       for (const event of queryResult) {
         const institute = await Institute.findOrFail(event.institute_id)
         event.institute_name = institute.name
