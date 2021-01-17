@@ -36,7 +36,10 @@ class EventController {
       dbquery = dbquery.where({ id: qparams.event_id }).first()
     } 
     if (qparams.event_name) {
-      dbquery = dbquery.where({ event_name: qparams.event_name })
+      // TODO: testar: https://forum.adonisjs.com/t/query-for-searching-word-in-column/1178
+      // https://stackoverflow.com/questions/44185803/adonis-js-search-queries
+      // old: dbquery = dbquery.where({ event_name: qparams.event_name })
+      dbquery = dbquery.where('event_name', 'LIKE', '%'+qparams.event_name+'%')
     } 
     if (qparams.date_begin) {
       dbquery = dbquery.where({ date_begin: qparams.date_begin })
