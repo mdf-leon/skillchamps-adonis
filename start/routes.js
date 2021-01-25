@@ -65,6 +65,7 @@ Route.get('/events', 'EventController.events').middleware('auth') // events list
 Route.get('/showEvent', 'EventController.showEvent').middleware('auth') // events the admin created
 Route.get('/eventsHistory', 'EventController.eventsHistory').middleware('auth') // events history from a rider
 Route.post('/signToEvent', 'EventController.signToEvent').middleware('auth')
+Route.put('/unsignToEvent', 'EventController.unsignToEvent').middleware('auth')
 Route.get('/eventsSigned', 'EventController.eventsSigned').middleware('auth')
 Route.get('/eventsList', 'EventController.eventsList').middleware('auth')
 Route.get('/finishEvent/:event_id', 'EventController.finishEvent').middleware('auth') // WARN: finishing an event

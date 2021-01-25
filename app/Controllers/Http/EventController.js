@@ -22,12 +22,29 @@ class EventController {
     let user = await auth.getUser()
 
     let q = Event.query()
-    q = q.where('date_begin',  '>=', new Date())
+    q = q.where('date_begin', '>=', new Date())
     if (parameters.event_id) q = q.where('id', parameters.event_id)
     q = q.whereHas('riders', b => { b.where('user_id', user.id) }) // apenas eventos deste rider logado
-    .with('institute') // inclui informaçoes do instituto de cada evento
+      .with('institute') // inclui informaçoes do instituto de cada evento
     return await parameters.event_id ? q.first() : q.fetch()
   }
+
+  // exports.getProductsByTenant = async function (tenantName, limit, offset, search = undefined) {
+  //   var queryBuilder = knex
+  //     .limit(limit)
+  //     .offset(offset)
+  //     .select('*')
+  //     .from(`${tenantName}.zap_product`)
+  //   if (search) {
+  //     queryBuilder.orWhere('name', 'LIKE', `%${search}%`)
+  //     queryBuilder.orWhere('brand', 'LIKE', `%${search}%`)
+  //     queryBuilder.orWhere('style', 'LIKE', `%${search}%`)
+  //   }
+  //   queryBuilder.where('active', true)
+  //     .orderBy('crated', 'desc').orderBy('id', 'desc')
+  //   var data = await queryBuilder
+  //   return data;
+  // }
 
   async events({ request, response, auth }) {
     const qparams = request.get()
@@ -304,6 +321,24 @@ class EventController {
       })
     })
 
+  }
+
+  async unsignToEvent({ request, response, auth }) {
+    const data = request.only(['rider_id', 'event_id']);
+    const rider = await Rider.findOrFail(data.rider_id)
+
+    const user = await auth.getUser()
+    // const institute = await user.institute().fetch()
+    // const event = await institute.events().where('id', data.event_id).first()
+    const event = await Event.findOrFail(data.event_id)
+
+    //const event = await Event.find(2)
+    if (!await event.riders().where('rider_id', data.rider_id).first()) {
+      return response.status(404).json({ Error: "Não existe" })
+    } else {
+      await event.riders().detach([data.rider_id])
+      return response.json(rider)
+    }
   }
 
   // async showEvent({ request, response, auth }) { // legacy
