@@ -381,6 +381,48 @@ class EventController {
 
   }
 
+  async createEvent2({ request, response, auth }) {
+    const photo_event = request.file('photo_event')
+    const photo_folder = request.file('photo_folder')
+    const eventData = request.only([
+      'event_name', //event name
+      'date_begin',
+      'longtext',
+    ]);
+
+    const user = await auth.getUser()
+    const institute = await user.institute().fetch()
+    console.log(institute.id)
+    const event = await Event.create({ ...eventData, institute_id: institute.id })
+    event.photo_event = photo_event && fs.readFileSync(photo_event.tmpPath, { encoding: 'base64' });
+    event.photo_folder = photo_folder && fs.readFileSync(photo_folder.tmpPath, { encoding: 'base64' });
+    await event.save()
+
+    return response.json(event)
+  }
+
+  async updateEvent({ request, response, auth, params }) {
+    const { event_id } = params
+    const photo_event = request.file('photo_event')
+    const photo_folder = request.file('photo_folder')
+    const eventData = request.only([
+      'event_name', //event name
+      'date_begin',
+      'longtext',
+    ]);
+
+    const event = await Event.findOrFail(event_id)
+
+    event.event_name = eventData.event_name
+    event.date_begin = eventData.date_begin
+    event.longtext = eventData.longtext
+    event.photo_event = photo_event && fs.readFileSync(photo_event.tmpPath, { encoding: 'base64' });
+    event.photo_folder = photo_folder && fs.readFileSync(photo_folder.tmpPath, { encoding: 'base64' });
+    await event.save()
+
+    return response.json(event)
+  }
+
   async uploadEventPhoto({ request, response, params, auth }) {
     const photo_event = request.file('photo_event')
     const photo_folder = request.file('photo_folder')

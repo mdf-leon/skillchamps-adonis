@@ -18,6 +18,7 @@ class EventSchema extends Schema {
       // table.int('street2').nullable()
       table.text('photo_folder').nullable()
       table.text('photo_event').nullable()
+      table.text('longtext').nullable()
       table.date('date_begin')
       table.date('date_end').nullable()
       table.boolean('active')
