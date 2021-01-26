@@ -19,13 +19,30 @@ var { Duration } = require('luxon');
 
 class ManageEventController {
 
-  async managedEventsList({ request, response, auth }) {
+  async managedEventsListold({ request, response, auth }) {
     //assumo que o evento está acontecendo
     //esta rota apenas procura as trials do admin
     let user = await auth.getUser()
     let institute = await user.institute().fetch()
     let events = await institute.events().fetch()
     return response.send(events)
+  }
+
+  async managedEventsList({ request, response, auth }) {
+    let user = await auth.getUser()
+    let events = await user.eventsOnManagement().fetch()
+    return response.send(events)
+  }
+
+  async assignEventToManager({ request, response, auth }) {
+    const { event_id, user_id } = request.post()
+    let event = await Event.findOrFail(event_id)
+    let admins = (await event.admins().fetch()).toJSON()
+    if (admins.find(admin => admin.id == user_id)) {
+      return response.status(401).json({ already: 'there' })
+    }
+    const res = await event.admins().attach(user_id)
+    return response.send({ event, res })
   }
 
   async getTrial({ request, response, params, auth }) {

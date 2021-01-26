@@ -71,6 +71,7 @@ Route.get('/eventsList', 'EventController.eventsList').middleware('auth')
 Route.get('/finishEvent/:event_id', 'EventController.finishEvent').middleware('auth') // WARN: finishing an event
 
 //manage event:
+Route.post('/assignEventToManager', 'ManageEventController.assignEventToManager').middleware('auth')
 Route.get('/managedEventsList', 'ManageEventController.managedEventsList').middleware('auth') // same as /showEvent (?)
 Route.get('/managedTrialsList', 'ManageEventController.managedTrialsList').middleware('auth') 
 Route.get('/managedRidersList', 'ManageEventController.managedRidersList').middleware('auth') 

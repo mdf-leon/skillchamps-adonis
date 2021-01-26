@@ -55,6 +55,8 @@ class User extends Model {
     return this.belongsToMany('App/Models/Event')
   }
 
+  
+
 }
 
 module.exports = User
