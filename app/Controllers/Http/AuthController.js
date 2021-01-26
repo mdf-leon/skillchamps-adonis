@@ -37,9 +37,11 @@ class AuthController {
         const token = await auth.attempt(email, password);
         if (token) {
             const user = await User.findByOrFail({ email })
+            const events = await user.eventsOnManagement().fetch()
+            const institute = await user.institute().fetch()
             const userInfo = { id: user.id, email: user.email }
             const rider = await user.rider().fetch()
-            return { ...token, user: userInfo, rider }
+            return { ...token, user: userInfo, rider, eventsOnManagement: events, institute }
         }
         //retorna o erro do token
         return token
