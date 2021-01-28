@@ -43,7 +43,7 @@ Route.post('/register', 'AuthController.register'); // sign up
 Route.post('/authenticate', 'AuthController.authenticate'); // sign in
 
 Route.get('/showUser', 'UserController.showUser').middleware('auth');
-Route.get('/indexUser', 'UserController.index').middleware('auth');
+Route.get('/indexUser', 'UserController.index') //.middleware('auth');
 
 //testes aleatorios
 Route.get('/test1', 'AppController.test1').middleware('auth');
