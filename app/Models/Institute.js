@@ -5,18 +5,22 @@ const Model = use('Model')
 
 class Institute extends Model {
 
-    user(){
+    user() {
         return this.belongsTo('App/Models/User')
     }
 
-    entity(){
+    notifications() {
+        return this.hasMany('App/Models/Notification')
+    }
+
+    entity() {
         return this.belongsTo('App/Models/Entity')
     }
 
-    events(){
+    events() {
         return this.hasMany('App/Models/Event')
     }
-    
+
 }
 
 module.exports = Institute

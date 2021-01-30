@@ -5,6 +5,8 @@ const Database = use('Database')
 const User = use('App/Models/User');
 const Rider = use('App/Models/Rider')
 const Event = use('App/Models/Event')
+const Notification = use('App/Models/Notification')
+const Institute = use('App/Models/Institute')
 const Token = use('App/Models/Token')
 
 class AuthController {
@@ -49,6 +51,23 @@ class AuthController {
         // // return tok
         // const user = await tok.user().fetch()
         // return {...token, user: {...user}};
+    }
+
+    async notifications({ request, auth }) {
+        if (request.all().institute_id)
+            return (await Institute.findOrFail(request.all().institute_id))
+                .notifications().fetch()
+        else if (request.all().event_id)
+            return (await Event.findOrFail(request.all().event_id))
+                .notifications().fetch()
+        else if (request.all().user_id)
+            return (await User.findOrFail(request.all().user_id))
+                .notifications().fetch()
+        return (await auth.getUser()).notifications().fetch()
+    }
+
+    async instituteNotifications({ request, auth }) {
+
     }
 
     // async registerRider({ request, response }) {

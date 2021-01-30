@@ -13,6 +13,10 @@ class Event extends Model {
     return this.hasOne('App/Models/History')
   }
 
+  notifications() {
+    return this.hasMany('App/Models/Notification')
+  }
+
   // addresses
 
   riders() {

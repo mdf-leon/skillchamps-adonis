@@ -47,6 +47,10 @@ class User extends Model {
     return this.hasOne('App/Models/Rider')
   }
 
+  notifications() {
+    return this.hasMany('App/Models/Notification')
+  }
+
   institute() {
     return this.hasOne('App/Models/Institute')
   }
@@ -55,7 +59,7 @@ class User extends Model {
     return this.belongsToMany('App/Models/Event')
   }
 
-  
+
 
 }
 

@@ -48,6 +48,7 @@ Route.get('/indexUser', 'UserController.index') //.middleware('auth');
 //testes aleatorios
 Route.get('/test1', 'AppController.test1').middleware('auth');
 Route.get('/check', 'AppController.check').middleware('auth');
+Route.get('notifications', 'AuthController.notifications').middleware('auth');
 
 Route.post('/makeRider', 'RiderController.makeRider').middleware('auth');
 Route.get('/showRider', 'RiderController.showRider').middleware('auth');

@@ -8,6 +8,7 @@ const Event = use('App/Models/Event')
 const Trial = use('App/Models/Trial')
 const PenaltyConf = use('App/Models/PenaltyConf')
 const History = use('App/Models/History')
+const Notification = use('App/Models/Notification')
 const Score = use('App/Models/Score')
 const Penalty = use('App/Models/Penalty')
 //const EntityTag = use('App/Models/EntityTag')
@@ -392,11 +393,20 @@ class EventController {
 
     const user = await auth.getUser()
     const institute = await user.institute().fetch()
-    console.log(institute.id)
     const event = await Event.create({ ...eventData, institute_id: institute.id })
     event.photo_event = photo_event && fs.readFileSync(photo_event.tmpPath, { encoding: 'base64' });
     event.photo_folder = photo_folder && fs.readFileSync(photo_folder.tmpPath, { encoding: 'base64' });
     await event.save()
+
+    await Notification.create({
+      type: 'created',
+      subject: 'event',
+      title: `%%Admin created an event`,
+      message: `The event: "${eventData.event_name}" is now accessible to administration.`,
+      user_id: user.id,
+      event_id: event.id,
+      institute_id: institute.id
+    })
 
     return response.json(event)
   }
