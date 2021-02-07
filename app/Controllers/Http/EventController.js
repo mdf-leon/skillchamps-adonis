@@ -398,6 +398,8 @@ class EventController {
     event.photo_folder = photo_folder && fs.readFileSync(photo_folder.tmpPath, { encoding: 'base64' });
     await event.save()
 
+    await user.eventsOnManagement().attach(event.id)
+
     await Notification.create({
       type: 'created',
       subject: 'event',
