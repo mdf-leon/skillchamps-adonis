@@ -78,6 +78,17 @@ class ManageEventController {
     // return event
   }
 
+  async trialsList({ request, response, params }) {
+    const { event_id } = params
+    let event = await Event.findOrFail(event_id)
+    if (event) {
+      return event.trials().fetch()
+    }
+    return response.status(500).send({ Erro: 'Bad request: Could you be asking for an event thats not yours?' })
+
+    // return event
+  }
+
   async managedRidersList({ request, response, auth }) {
     // lista de riders de um evento, por enquanto
     // teoricamente cada prova pode ter um competidor diferente da outra

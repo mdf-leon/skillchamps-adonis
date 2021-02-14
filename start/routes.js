@@ -77,6 +77,7 @@ Route.get('/finishEvent/:event_id', 'EventController.finishEvent').middleware('a
 Route.post('/assignEventToManager', 'ManageEventController.assignEventToManager').middleware('auth')
 Route.get('/managedEventsList', 'ManageEventController.managedEventsList').middleware('auth') // same as /showEvent (?)
 Route.get('/managedTrialsList', 'ManageEventController.managedTrialsList').middleware('auth') 
+Route.get('/trials/event/:event_id', 'ManageEventController.trialsList') // lista de trial de um evento publico
 Route.get('/managedRidersList', 'ManageEventController.managedRidersList').middleware('auth') 
 Route.get('/managedRidersList2', 'ManageEventController.managedRidersList2').middleware('auth') 
 Route.get('/managedRidersList3', 'ManageEventController.managedRidersList3').middleware('auth') 
