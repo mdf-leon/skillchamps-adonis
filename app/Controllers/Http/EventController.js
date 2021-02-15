@@ -224,7 +224,7 @@ class EventController {
   async finishEvent({ request, response, auth, params }) {
     const { event_id } = params
     const history = await History.findByOrFail({ event_id })
-    if (!history && !history.config) {
+    if (!history || !history.config) { // TODO: testar / aqui era && antes, n sei se deveria continuar sendo 
       return response.status(400).json({ error: 'cannot make history without "allRanking", please create a config file' })
     }
     const allRanks = await this.allRanking(JSON.parse(history.config))

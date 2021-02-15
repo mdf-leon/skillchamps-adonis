@@ -576,8 +576,158 @@ class ManageEventController {
     return { ...event }
   }
 
-  async allRanking({ request, params, response, auth }) {
+  async resultRanking({ request, params, response }) {
+    const { event_id } = params
+    // const { events_request } = request.post()
 
+    // try {
+    //   const history = await History.findByOrFail({ event_id: events_request[0].event_id });
+    //   history.config = JSON.stringify(events_request);
+    //   await history.save()
+    // } catch (error) {
+    //   console.log(error)
+    //   await History.create({ config: JSON.stringify(events_request), event_id: events_request[0].event_id })
+    // }
+
+    const event_temp = await Event.findOrFail(event_id)
+    const history = await event_temp.history().fetch()
+    if (!history || !history.config) {
+      return response.status(400).json({ error: 'cannot make history without "allRanking", please create a config file' })
+    }
+    const events_request = JSON.parse(history.config)
+
+    const total_events = []
+    let riders_points = {}
+    let r_p_final = []
+    for (const even of events_request) {
+      let event = await Event.query()
+        .with('riders.scores.trial')
+        .with('riders.scores.penalties')
+        .with('riders.scores.bonuses')
+        .where({ id: even.event_id })
+        .first()
+
+      event.category_chosen = even.category
+      event.category2_chosen = even.category2
+      event = event.toJSON()
+
+      // let filtered = []
+      for (let i = 0; i < event.riders.length; i++) {
+        event.riders[i].scores =
+          event.riders[i].scores.filter(score => {
+            return score.trial.id == even.trial_id
+          })[0]
+        if (!event.riders[i].scores) {
+          delete event.riders[i]
+        }
+      }
+
+
+
+      // if(!event.riders[1]) console.log("a")
+      // console.log(event.riders)
+      // event.riders.sort(event.riders[0].scores && event.riders[0].scores.trial.inverted ? this.sortMoreTime : this.sortLessTime);
+      event.riders.sort(this.sortLessTime)
+      event.trial_name = event.riders[0].scores.trial.name
+      if (event.riders[0].scores.trial.inverted) {
+        event.riders.reverse();
+      }
+
+      // for (let i = 0; i < event.riders.length; i++) {
+
+      // }
+      event.riders = event.riders.filter(function (el) { // DELETES EMPTY POSITIONS IN ARRAY
+        return el != null;
+      });
+
+      const points = [100, 80, 60, 40, 20, 5];
+      for (const i in event.riders) {
+        if (even.category && even.category !== "null" && even.category !== "none" && event.riders[i].category !== even.category) {
+          // event.riders[i] = undefined
+          delete event.riders[i]
+          continue
+        }
+        if (even.category2 && even.category2 !== "null" && even.category2 !== "none" && event.riders[i].category2 !== even.category2) {
+          delete event.riders[i]; continue;
+        }
+        event.riders[i].position = Number(i) + 1
+        event.riders[i].treated_time_total = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time_total : 0)
+        event.riders[i].treated_time = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time : 0)
+        // console.log(event.riders[i].id);
+
+        if (event.riders[i].scores && points[i]) {
+          riders_points[event.riders[i].id.toString()] = {
+            id: event.riders[i].id,
+            name: event.riders[i].name,
+            points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + points[i] : points[i]
+          }
+        }
+      }
+
+      event.riders = event.riders.filter(function (el) { // TODO: check necessity
+        return el != null;
+      });
+
+
+
+
+      // riders_points = {...riders_points}
+      // for (const rider in riders_points) {
+      //   r_p_final.push(riders_points[rider])
+      // }
+
+
+      // riders_points = riders_points.filter(function (el) {
+      //   return el != null;
+      // });
+
+
+      // for (const r_p in riders_points) {
+      //   r_p_final[r_p] = (riders_points[r_p])
+      // }
+
+      // r_p_final = r_p_final.filter(function (el) {
+      //   return el != null;
+      // });
+
+      total_events.push({ ...event })
+    }
+
+    Object.keys(riders_points).forEach(function (key) {
+      r_p_final.push(riders_points[key]);
+    });
+
+    r_p_final.sort(function (riderA, riderB) {
+      let pointA = riderA.points
+      let pointB = riderB.points
+      // if (!pointA) return -1
+      // if (!pointB) return 1
+      if (Number(pointA) < Number(pointB)) {
+        return 1;
+      }
+      if (Number(pointA) > Number(pointB)) {
+        return -1;
+      }
+      return 0;
+    });
+    let the_cone_master = r_p_final.map(function (rp, i) {
+      if (i === 0) {
+        return rp
+      } else if (rp.points === r_p_final[0].points) {
+        return rp
+      }
+    })
+
+    the_cone_master = the_cone_master.filter(function (el) {
+      return el != null;
+    });
+
+    return { the_cone_master, r_p_final, total_events }
+  }
+
+
+  async allRanking({ request, params, response, auth }) {
+    //possivelmente essa funcao nao precisa mais fazer calculo de allranking mais
     const { events_request } = request.post()
 
     try {

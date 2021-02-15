@@ -94,7 +94,8 @@ Route.post('/addScore', 'ManageEventController.addScore').middleware('auth')
 Route.get('/fullRanking/:event_id', 'ManageEventController.fullRanking').middleware('auth')
 Route.get('/fullRanking2', 'ManageEventController.fullRanking2').middleware('auth')
 Route.get('/fullRanking3', 'ManageEventController.fullRanking3')
-Route.post('/allRanking', 'ManageEventController.allRanking')
+Route.post('/allRanking', 'ManageEventController.allRanking').middleware('auth') //essa rota cria o config do history
+Route.get('/result/event/:event_id', 'ManageEventController.resultRanking')
 
 //- BETA ROUTES
 Route.resource('/score', 'ScoreController').middleware('auth')
