@@ -5,6 +5,7 @@ const Rider = use('App/Models/Rider')
 const Institute = use('App/Models/Institute')
 const Entity = use('App/Models/Entity')
 const Event = use('App/Models/Event')
+const Image = use('App/Models/Image')
 const Trial = use('App/Models/Trial')
 const PenaltyConf = use('App/Models/PenaltyConf')
 const History = use('App/Models/History')
@@ -17,6 +18,16 @@ var { Duration } = require('luxon');
 const fs = require('fs');
 
 class EventController {
+
+  async image({ request, response, params }) {
+    const { id } = params
+    return Image.findOrFail(id)
+  }
+  
+  async imageB64({ request, response, params }) {
+    const { id } = params
+    return (await Image.findOrFail(id)).b64
+  }
 
   async eventsSigned({ request, response, auth }) {
     const parameters = request.get()
@@ -391,11 +402,14 @@ class EventController {
       'longtext',
     ]);
 
+    const photo_event_entity = await Image.create({ b64: photo_event && fs.readFileSync(photo_event.tmpPath, { encoding: 'base64' }) })
+    const photo_folder_entity = await Image.create({ b64: photo_folder && fs.readFileSync(photo_folder.tmpPath, { encoding: 'base64' }) })
+
     const user = await auth.getUser()
     const institute = await user.institute().fetch()
     const event = await Event.create({ ...eventData, institute_id: institute.id })
-    event.photo_event = photo_event && fs.readFileSync(photo_event.tmpPath, { encoding: 'base64' });
-    event.photo_folder = photo_folder && fs.readFileSync(photo_folder.tmpPath, { encoding: 'base64' });
+    event.photo_event = photo_event_entity.id
+    event.photo_folder = photo_folder_entity.id
     await event.save()
 
     await user.eventsOnManagement().attach(event.id)
@@ -417,6 +431,8 @@ class EventController {
     const { event_id } = params
     const photo_event = request.file('photo_event')
     const photo_folder = request.file('photo_folder')
+    const photo_event_entity = await Image.create({ b64: photo_event && fs.readFileSync(photo_event.tmpPath, { encoding: 'base64' }) })
+    const photo_folder_entity = await Image.create({ b64: photo_folder && fs.readFileSync(photo_folder.tmpPath, { encoding: 'base64' }) })
     const eventData = request.only([
       'event_name', //event name
       'date_begin',
@@ -428,8 +444,8 @@ class EventController {
     event.event_name = eventData.event_name
     event.date_begin = eventData.date_begin
     event.longtext = eventData.longtext
-    event.photo_event = photo_event && fs.readFileSync(photo_event.tmpPath, { encoding: 'base64' });
-    event.photo_folder = photo_folder && fs.readFileSync(photo_folder.tmpPath, { encoding: 'base64' });
+    event.photo_event = photo_event_entity.id
+    event.photo_folder = photo_folder_entity.id
     await event.save()
 
     return response.json(event)
@@ -439,9 +455,12 @@ class EventController {
     const photo_event = request.file('photo_event')
     const photo_folder = request.file('photo_folder')
 
+    const photo_event_entity = await Image.create({ b64: photo_event && fs.readFileSync(photo_event.tmpPath, { encoding: 'base64' }) })
+    const photo_folder_entity = await Image.create({ b64: photo_folder && fs.readFileSync(photo_folder.tmpPath, { encoding: 'base64' }) })
+
     const event = await Event.findOrFail(params.event_id)
-    event.photo_event = photo_event && fs.readFileSync(photo_event.tmpPath, { encoding: 'base64' });
-    event.photo_folder = photo_folder && fs.readFileSync(photo_folder.tmpPath, { encoding: 'base64' });
+    event.photo_event = photo_event_entity.id
+    event.photo_folder = photo_folder_entity.id
     await event.save()
     return await { photo_event, photo_folder }
   }

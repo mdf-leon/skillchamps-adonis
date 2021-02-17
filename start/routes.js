@@ -59,6 +59,8 @@ Route.post('/makeInstitute', 'InstituteController.makeInstitute').middleware('au
 Route.get('/showInstitute', 'InstituteController.showInstitute').middleware('auth')
 Route.get('/institutesList', 'InstituteController.institutesList').middleware('auth')
 
+Route.get('/image/:id', 'EventController.image')
+Route.get('/image-b64/:id', 'EventController.imageB64')
 Route.post('/createEvent', 'EventController.createEvent').middleware('auth')
 Route.post('/createEvent2', 'EventController.createEvent2').middleware('auth')
 Route.post('/updateEvent/:event_id', 'EventController.updateEvent').middleware('auth')
