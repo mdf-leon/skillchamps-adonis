@@ -26,7 +26,7 @@ class EventController {
   
   async imageB64({ request, response, params }) {
     const { id } = params
-    return `data:image/<format of the image>;base64, `+(await Image.findOrFail(id)).b64
+    return `data:image/png;base64, `+(await Image.findOrFail(id)).b64
   }
 
   async eventsSigned({ request, response, auth }) {
