@@ -23,7 +23,7 @@ class EventController {
     const { id } = params
     response.header('Content-Type', 'image/png')
     response.header('Content-Length', 'img.length')
-    return Buffer.from((await Image.findOrFail(id)).b64, 'base64')
+    return response.send(Buffer.from((await Image.findOrFail(id)).b64, 'base64'))
   }
   
   async imageB64({ request, response, params }) {
