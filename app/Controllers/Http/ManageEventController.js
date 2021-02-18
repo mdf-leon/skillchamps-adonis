@@ -943,12 +943,13 @@ class ManageEventController {
   async createTrial({ request, response, auth }) {
     const data = request.only([
       'name',
+      'inverted',
       'event_id',
       'bonuses',
       'penalties',
     ]);
 
-    let res = await Trial.create({ name: data.name, event_id: data.event_id })
+    let res = await Trial.create({ name: data.name, inverted: data.inverted, event_id: data.event_id })
 
     let pens = []
 
