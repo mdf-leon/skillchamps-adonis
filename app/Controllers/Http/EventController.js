@@ -25,10 +25,10 @@ class EventController {
     // response.header('Content-Length', 'img.length')
     return response.type('image/png').send(Buffer.from((await Image.findOrFail(id)).b64, 'base64'))
   }
-  
+
   async imageB64({ request, response, params }) {
     const { id } = params
-    return `data:image/png;base64, `+(await Image.findOrFail(id)).b64
+    return `data:image/png;base64, ` + (await Image.findOrFail(id)).b64
   }
 
   async eventsSigned({ request, response, auth }) {
@@ -404,8 +404,8 @@ class EventController {
       'longtext',
     ]);
 
-    const photo_event_entity = await Image.create({ b64: photo_event && fs.readFileSync(photo_event.tmpPath, { encoding: 'base64' }) })
-    const photo_folder_entity = await Image.create({ b64: photo_folder && fs.readFileSync(photo_folder.tmpPath, { encoding: 'base64' }) })
+    const photo_event_entity = photo_event && await Image.create({ b64: fs.readFileSync(photo_event.tmpPath, { encoding: 'base64' }) })
+    const photo_folder_entity = photo_folder && await Image.create({ b64: fs.readFileSync(photo_folder.tmpPath, { encoding: 'base64' }) })
 
     const user = await auth.getUser()
     const institute = await user.institute().fetch()
