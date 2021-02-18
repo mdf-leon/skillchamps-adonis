@@ -34,6 +34,16 @@ class ManageEventController {
     return response.send(events)
   }
 
+
+  //primeira rota que precisa de segurança completa: verificar se o evento é do usuario jwt
+  async addManagerByEmail({ request, response, auth }) { // valeu zap
+    const { event_id, email } = request.post()
+    let manager = await User.findByOrFail({ email })
+    let event = await Event.findOrFail(event_id)
+    let attach = await event.admins().attach(manager.id)
+    return response.send({ event, attach })
+  }
+
   async assignEventToManager({ request, response, auth }) {
     const { event_id, user_id } = request.post()
     let event = await Event.findOrFail(event_id)

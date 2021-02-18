@@ -23,7 +23,7 @@ class Event extends Model {
     return this.belongsToMany('App/Models/Rider')
   }
 
-  admins() {
+  admins() { // managers
     return this.belongsToMany('App/Models/User')
   }
 
