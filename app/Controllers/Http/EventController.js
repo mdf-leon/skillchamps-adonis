@@ -410,8 +410,10 @@ class EventController {
     const user = await auth.getUser()
     const institute = await user.institute().fetch()
     const event = await Event.create({ ...eventData, institute_id: institute.id })
-    event.photo_event = photo_event_entity.id
-    event.photo_folder = photo_folder_entity.id
+    if (photo_event_entity)
+      event.photo_event = photo_event_entity.id
+    if (photo_folder_entity)
+      event.photo_folder = photo_folder_entity.id
     await event.save()
 
     await user.eventsOnManagement().attach(event.id)
