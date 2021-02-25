@@ -66,7 +66,7 @@ class AuthController {
                 .notifications().fetch()
         else
             notes = (await auth.getUser()).notifications().fetch()
-        return notes.toJSON().reverse()
+        return (await notes).toJSON().reverse()
     }
 
     async instituteNotifications({ request, auth }) {
