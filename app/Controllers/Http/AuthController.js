@@ -54,16 +54,19 @@ class AuthController {
     }
 
     async notifications({ request, auth }) {
+        let notes = []
         if (request.all().institute_id)
-            return (await Institute.findOrFail(request.all().institute_id))
+            notes = (await Institute.findOrFail(request.all().institute_id))
                 .notifications().fetch()
         else if (request.all().event_id)
-            return (await Event.findOrFail(request.all().event_id))
+            notes = (await Event.findOrFail(request.all().event_id))
                 .notifications().fetch()
         else if (request.all().user_id)
-            return (await User.findOrFail(request.all().user_id))
+            notes = (await User.findOrFail(request.all().user_id))
                 .notifications().fetch()
-        return (await auth.getUser()).notifications().fetch()
+        else
+            notes = (await auth.getUser()).notifications().fetch()
+        return notes.toJSON().reverse()
     }
 
     async instituteNotifications({ request, auth }) {
