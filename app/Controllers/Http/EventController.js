@@ -421,7 +421,7 @@ class EventController {
     await Notification.create({
       type: 'created',
       subject: 'event',
-      title: `%%Admin created an event`,
+      title: `${institute.name} created an event`,
       message: `The event: "${eventData.event_name}" is now accessible to administration.`,
       user_id: user.id,
       event_id: event.id,
