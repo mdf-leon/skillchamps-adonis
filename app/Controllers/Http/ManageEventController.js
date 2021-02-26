@@ -30,10 +30,15 @@ class ManageEventController {
 
   async managedEventsList({ request, response, auth }) {
     let user = await auth.getUser()
-    let events = await user.eventsOnManagement().fetch()
-    return response.send(events)
+    let events = await user.eventsOnManagement().where('date_begin', '>', new Date()).fetch()
+    return response.send(events.toJSON().reverse())
   }
 
+  async managedHistoryList({ request, response, auth }) {
+    let user = await auth.getUser()
+    let events = await user.eventsOnManagement().where('date_begin', '<', new Date()).fetch()
+    return response.send(events.toJSON().reverse())
+  }
 
   //primeira rota que precisa de segurança completa: verificar se o evento é do usuario jwt
   async addManagerByEmail({ request, response, auth }) { // valeu zap
