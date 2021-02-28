@@ -955,6 +955,43 @@ class ManageEventController {
     })
   }
 
+  async addBoolScore({ request, response, auth }) {
+    const data = request.only([
+      'rider_id',
+      'trial_id',
+      'time',
+    ]);
+    //um rider so pode receber a pontuaçao se o gerente estiver dando pontuaçao a um rider inscrito em seu evento
+    const rider = await Rider.query()
+      .where('id', '=', data.rider_id)
+      .with('events')
+      .first()
+    if (!rider) return response.status(400).json({ bad_request: 'este rider nao existe' })
+
+    const trial = await Trial.query()
+      .where('id', '=', data.trial_id)
+      .with('event')
+      .first() // trial.toJSON().event.id
+    if (!trial) return response.status(400).json({ bad_request: 'este trial nao existe' })
+
+    //que essa linha significa que este rider esta inscrito neste evento
+    const event = await rider.events().where('events.id', '=', trial.toJSON().event.id).first()
+    if (!event) return response.status(400).json({ bad_request: 'este rider esta inscrito neste evento?' })
+
+    let old = await Score.query().where({ rider_id: data.rider_id, trial_id: data.trial_id })
+      .with('penalties')
+      .with('bonuses')
+      .first();
+    if (old) {
+      await old.delete()
+    }
+    let res = await Score.create({
+      rider_id: data.rider_id, trial_id: data.trial_id, time_total: data.time
+    })
+    res = res.toJSON()
+    return response.json(res)
+  }
+
   async createTrial({ request, response, auth }) {
     const data = request.only([
       'name',
@@ -981,6 +1018,19 @@ class ManageEventController {
     res = res.toJSON()
 
     return response.json({ ...res, penalties: [...pens], bonuses: [...bons] })
+  }
+
+  async createTrialBool({ request, response, auth }) {
+    const data = request.only([
+      'name',
+      'event_id',
+    ]);
+
+    let res = await Trial.create({ name: data.name, boolean: true, event_id: data.event_id })
+
+    res = res.toJSON()
+
+    return response.json(res)
   }
 
 }
