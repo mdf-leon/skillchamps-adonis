@@ -931,7 +931,10 @@ class ManageEventController {
     let penaltyTime = 0
 
     for (let penalty of data.penalties) {
-      pens.push(await Penalty.create({ ...penalty, score_id: res.id }));
+      const peny = await Penalty.create({ ...penalty, score_id: res.id })
+      if(penalty.quantity > 0){
+        pens.push(peny);
+      }
       const pc = await PenaltyConf.findOrFail(penalty.penalty_conf_id);
       penaltyTime += (penalty.quantity || 0) * pc.time_penalty;
     }
