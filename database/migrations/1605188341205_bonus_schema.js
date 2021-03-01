@@ -10,7 +10,6 @@ class BonusSchema extends Schema {
       table.integer('score_id').unsigned().references('id').inTable('scores') // FK
       table.integer('bonus_conf_id').unsigned().references('id').inTable('bonus_confs') // FK
       table.integer('quantity')
-      table.string('condidtion') // if null, then not automated, types: [ no_penalties, full_bonus, trial_true ]
       table.timestamps()
     })
   }
