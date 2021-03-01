@@ -954,6 +954,7 @@ class ManageEventController {
       bonusTime += (bonus.quantity || 0) * bc.time_bonus
     }
     for (let bonus of data.bonuses) {
+      const bc = await BonusConf.findOrFail(bonus.bonus_conf_id)
       if (bc.condition === "full_bonus" && bons.length === (data.bonuses.length - 1)) {
         bons.push(await Bonus.create({ ...bonus, score_id: res.id, quantity: 1 }))
       }
