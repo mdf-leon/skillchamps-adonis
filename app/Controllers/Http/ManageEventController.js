@@ -941,6 +941,7 @@ class ManageEventController {
 
     for (let bonus of data.bonuses) {
       const bc = await BonusConf.findOrFail(bonus.bonus_conf_id)
+      // console.log(bc.toJSON());
       if (bc.condition === "trial_true") {
         const score = await Score.findByOrFail({ rider_id: data.rider_id, trial_id: bc.condition_trial_id })
         if (score.time_total == 1) {
