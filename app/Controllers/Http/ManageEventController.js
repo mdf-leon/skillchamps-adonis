@@ -931,18 +931,32 @@ class ManageEventController {
     let penaltyTime = 0
 
     for (let penalty of data.penalties) {
-      pens.push(await Penalty.create({ ...penalty, score_id: res.id }))
-      const pc = await PenaltyConf.findOrFail(penalty.penalty_conf_id)
-      penaltyTime += (penalty.quantity || 0) * pc.time_penalty
+      pens.push(await Penalty.create({ ...penalty, score_id: res.id }));
+      const pc = await PenaltyConf.findOrFail(penalty.penalty_conf_id);
+      penaltyTime += (penalty.quantity || 0) * pc.time_penalty;
     }
 
     let bons = []
     let bonusTime = 0
 
     for (let bonus of data.bonuses) {
-      bons.push(await Bonus.create({ ...bonus, score_id: res.id }))
       const bc = await BonusConf.findOrFail(bonus.bonus_conf_id)
+      if (bc.condition === "trial_true") {
+        const score = await Score.findByOrFail({ rider_id: data.rider_id, trial_id: bc.condition_trial_id })
+        if (score.time_total == 1) {
+          bons.push(await Bonus.create({ ...bonus, score_id: res.id, quantity: 1 }))
+        }
+      } if (bc.condition === "no_penalties" && !pen[0]) {
+        bons.push(await Bonus.create({ ...bonus, score_id: res.id, quantity: 1 }))
+      } else if (bc.condition === "unconditioned") {
+        bons.push(await Bonus.create({ ...bonus, score_id: res.id }))
+      }
       bonusTime += (bonus.quantity || 0) * bc.time_bonus
+    }
+    for (let bonus of data.bonuses) {
+      if (bc.condition === "full_bonus" && bons.length === (data.bonuses.length - 1)) {
+        bons.push(await Bonus.create({ ...bonus, score_id: res.id, quantity: 1 }))
+      }
     }
 
     res.time_total = Number(res.time) + Number(penaltyTime) - Number(bonusTime)
