@@ -946,7 +946,7 @@ class ManageEventController {
         if (score.time_total == 1) {
           bons.push(await Bonus.create({ ...bonus, score_id: res.id, quantity: 1 }))
         }
-      } if (bc.condition === "no_penalties" && !pen[0]) {
+      } if (bc.condition === "no_penalties" && !pens[0]) {
         bons.push(await Bonus.create({ ...bonus, score_id: res.id, quantity: 1 }))
       } else if (bc.condition === "unconditioned") {
         bons.push(await Bonus.create({ ...bonus, score_id: res.id }))
