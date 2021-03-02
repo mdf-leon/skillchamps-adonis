@@ -435,8 +435,8 @@ class EventController {
     const { event_id } = params
     const photo_event = request.file('photo_event')
     const photo_folder = request.file('photo_folder')
-    const photo_event_entity = photo_event.tmpPath && await Image.create({ b64: photo_event && fs.readFileSync(photo_event.tmpPath, { encoding: 'base64' }) })
-    const photo_folder_entity = photo_folder.tmpPath && await Image.create({ b64: photo_folder && fs.readFileSync(photo_folder.tmpPath, { encoding: 'base64' }) })
+    const photo_event_entity = photo_event && photo_event.tmpPath && await Image.create({ b64: photo_event && fs.readFileSync(photo_event.tmpPath, { encoding: 'base64' }) })
+    const photo_folder_entity = photo_folder && photo_folder.tmpPath && await Image.create({ b64: photo_folder && fs.readFileSync(photo_folder.tmpPath, { encoding: 'base64' }) })
     const eventData = request.only([
       'event_name', //event name
       'date_begin',
