@@ -332,6 +332,29 @@ class ManageEventController {
     return response.send(bonuses)
   }
 
+  async managedBonusConfsFromTrial3({ request, response, params }) {
+    //assumo que o evento está acontecendo
+    //esta rota apenas procura as trials do admin
+
+    const query = request.get()
+
+    let trial
+    let eventTemp = await Event.findOrFail(query.event_id)
+    let trials = await eventTemp.trials().fetch()
+    trials = trials.toJSON()
+    for (let trialL of trials) {
+      if (trialL.id == query.trial_id) {
+        trial = await Trial.findOrFail(query.trial_id)
+      }
+    }
+
+    if (!trial) return response.status(400).send({ "bad_request": "sure this trial exist?" })
+    let bonuses = await trial.bonusConfs().fetch()
+
+
+    return response.send(bonuses)
+  }
+
   async managedPenaltyConfsFromTrial2({ request, response, params }) {
     //assumo que o evento está acontecendo
     //esta rota apenas procura as trials do admin
@@ -364,6 +387,28 @@ class ManageEventController {
     return response.send(penalties)
   }
 
+  async managedPenaltyConfsFromTrial3({ request, response, params }) {
+    //assumo que o evento está acontecendo
+    //esta rota apenas procura as trials do admin
+
+    const query = request.get()
+
+    let trial
+    let eventTemp = await Event.findOrFail(query.event_id)
+    let trials = await eventTemp.trials().fetch()
+    trials = trials.toJSON()
+    for (let trialL of trials) {
+      if (trialL.id == query.trial_id) {
+        trial = await Trial.findOrFail(query.trial_id)
+      }
+    }
+
+    if (!trial) return response.status(400).send({ "bad_request": "sure this trial exist?" })
+    let penalties = await trial.penaltyConfs().fetch()
+
+
+    return response.send(penalties)
+  }
 
 
   async sendScore({ request, response, auth }) {
@@ -932,7 +977,7 @@ class ManageEventController {
 
     for (let penalty of data.penalties) {
       const peny = await Penalty.create({ ...penalty, score_id: res.id })
-      if(penalty.quantity > 0){
+      if (penalty.quantity > 0) {
         pens.push(peny);
       }
       const pc = await PenaltyConf.findOrFail(penalty.penalty_conf_id);
@@ -949,20 +994,24 @@ class ManageEventController {
         const score = await Score.findByOrFail({ rider_id: data.rider_id, trial_id: bc.condition_trial_id })
         if (score.time_total == 1) {
           bons.push(await Bonus.create({ ...bonus, score_id: res.id, quantity: 1 }))
+          bonusTime += bc.time_bonus
         }
       } if (bc.condition === "no_penalties" && !pens[0]) {
         bons.push(await Bonus.create({ ...bonus, score_id: res.id, quantity: 1 }))
+        bonusTime += bc.time_bonus
       } else if (bc.condition === "unconditioned") {
         bons.push(await Bonus.create({ ...bonus, score_id: res.id }))
+        bonusTime += (bonus.quantity || 0) * bc.time_bonus
       }
-      bonusTime += (bonus.quantity || 0) * bc.time_bonus
     }
     for (let bonus of data.bonuses) {
       const bc = await BonusConf.findOrFail(bonus.bonus_conf_id)
       if (bc.condition === "full_bonus" && bons.length === (data.bonuses.length - 1)) {
         bons.push(await Bonus.create({ ...bonus, score_id: res.id, quantity: 1 }))
+        bonusTime += bc.time_bonus
       }
     }
+    console.log(bonusTime);
 
     res.time_total = Number(res.time) + Number(penaltyTime) - Number(bonusTime)
     await res.save()
