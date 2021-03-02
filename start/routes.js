@@ -97,6 +97,7 @@ Route.get('/showScore', 'ManageEventController.showScore').middleware('auth') //
 Route.get('/trial/:trial_id', 'ManageEventController.getTrial')
 Route.post('/createTrial', 'ManageEventController.createTrial').middleware('auth')
 Route.post('/createTrialBool', 'ManageEventController.createTrialBool').middleware('auth')
+Route.delete('/trial/:trial_id', 'ManageEventController.deleteTrial').middleware('auth') 
 Route.post('/addScore', 'ManageEventController.addScore').middleware('auth')
 Route.post('/addBoolScore', 'ManageEventController.addBoolScore').middleware('auth')
 Route.get('/fullRanking/:event_id', 'ManageEventController.fullRanking').middleware('auth')

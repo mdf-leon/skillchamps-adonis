@@ -77,12 +77,12 @@ class ManageEventController {
       if (event.id == query.event_id) {
 
         let eventTemp = await Event.findOrFail(query.event_id)
-        let trials = await eventTemp.trials().fetch()
+        let trials
 
         if (query.trial_id) {
-          trials = await eventTemp.trials().where('trials.id', query.trial_id).first()
+          trials = await eventTemp.trials().where('trials.id', query.trial_id).where('active', '=', true).first()
         } else {
-          trials = await eventTemp.trials().fetch()
+          trials = await eventTemp.trials().where('active', '=', true).fetch()
         }
 
         return response.send(trials)
@@ -1059,6 +1059,14 @@ class ManageEventController {
     })
     res = res.toJSON()
     return response.json(res)
+  }
+
+  async deleteTrial({ request, response, auth, params}) {
+    const { trial_id } = params
+    const trial = await Trial.findOrFail(trial_id)
+    trial.active = false;
+    await trial.save()
+    return trial
   }
 
   async createTrial({ request, response, auth }) {
