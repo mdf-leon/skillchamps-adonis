@@ -991,8 +991,9 @@ class ManageEventController {
       const bc = await BonusConf.findOrFail(bonus.bonus_conf_id)
       // console.log(bc.toJSON());
       if (bc.condition === "trial_true") {
-        const score = await Score.findByOrFail({ rider_id: data.rider_id, trial_id: bc.condition_trial_id })
-        if (score.time_total == 1) {
+        const score = await Score.findBy({ rider_id: data.rider_id, trial_id: bc.condition_trial_id })
+        // console.log(score);
+        if (score && score.time_total == 1) {
           bons.push(await Bonus.create({ ...bonus, score_id: res.id, quantity: 1 }))
           bonusTime += bc.time_bonus
         }
@@ -1011,7 +1012,7 @@ class ManageEventController {
         bonusTime += bc.time_bonus
       }
     }
-    console.log(bonusTime);
+    // console.log(bonusTime);
 
     res.time_total = Number(res.time) + Number(penaltyTime) - Number(bonusTime)
     await res.save()
