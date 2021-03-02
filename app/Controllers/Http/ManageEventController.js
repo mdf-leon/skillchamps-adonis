@@ -97,7 +97,7 @@ class ManageEventController {
     const { event_id } = params
     let event = await Event.findOrFail(event_id)
     if (event) {
-      return event.trials().where('trials.id', query.trial_id).fetch()
+      return event.trials().where('active', '=', true).fetch()
     }
     return response.status(500).send({ Erro: 'Bad request: Could you be asking for an event thats not yours?' })
 
