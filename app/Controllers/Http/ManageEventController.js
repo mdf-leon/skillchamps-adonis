@@ -1103,7 +1103,7 @@ class ManageEventController {
       'event_id',
     ]);
 
-    let res = await Trial.create({ name: data.name, boolean: true, event_id: data.event_id })
+    let res = await Trial.create({ name: data.name, type: 'boolean', event_id: data.event_id })
 
     res = res.toJSON()
 
