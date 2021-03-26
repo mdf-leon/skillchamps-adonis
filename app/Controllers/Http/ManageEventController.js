@@ -1121,18 +1121,18 @@ class ManageEventController {
     riders = await riders.toJSON()
     for (let i = 0; i < riders.length / 2; i++) {
       tournament["0"][i.toString()] = {
-        rider1: riders[i].id,
-        rider2: riders[(riders.length - 1 - i)].id,
-        winner: riders[(riders.length - 1 - i)].id === riders[i].id ? riders[i].id : 0,
+        rider1: riders[i],
+        rider2: riders[(riders.length - 1 - i)],
+        winner: riders[(riders.length - 1 - i)].id === riders[i].id ? riders[i] : 0,
       }
     }
 
 
-    // const bracket = await Bracket.create({ trial_id, tournament })
-    // return bracket
+    const bracket = await Bracket.create({ trial_id, tournament: await this.recursiveBuildBrackets(tournament) })
+    return bracket
     // return { riders1: riders.slice(0, riders.length / 2), riders2: riders.slice(riders.length / 2, riders.length) }
     // return { tournament, t: await this.recursiveBuildBrackets(tournament) }
-    return await this.recursiveBuildBrackets(tournament)
+    // return await this.recursiveBuildBrackets(tournament)
   }
 
 
