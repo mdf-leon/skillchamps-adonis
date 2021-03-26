@@ -28,7 +28,7 @@ class RiderSchema extends Schema {
 
       
 
-      table.boolean('active'); // UK??
+      table.boolean('active').defaultTo(true); // UK??
 
       table.timestamps()
     })

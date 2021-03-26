@@ -13,6 +13,7 @@ const Penalty = use('App/Models/Penalty')
 const Bonus = use('App/Models/Bonus')
 //const EntityTag = use('App/Models/EntityTag')
 const History = use('App/Models/History')
+const Bracket = use('App/Models/Bracket')
 const Database = use('Database')
 var _ = require('lodash');
 var { Duration } = require('luxon');
@@ -1061,7 +1062,95 @@ class ManageEventController {
     return response.json(res)
   }
 
-  async deleteTrial({ request, response, auth, params}) {
+  async addBracketScore({ request, response, auth }) { // so para teste
+
+    const data = request.only([
+      'trial_id',
+      'tournament',
+    ]);
+    const bracket = await Bracket.create({ trial_id: data.trial_id, tournament: data.tournament })
+    return bracket
+  }
+
+  async recursiveBuildBrackets(p_tournament, position = 1) {
+    let tournament = { ...p_tournament }
+    tournament[position] = {}
+    const pastKeys = Object.keys(tournament[(position - 1)])
+    for (let i = 0; i < pastKeys.length; i += 2) {
+      tournament[position] = {
+        ...tournament[position], [i]: {
+          rider1: tournament[(position - 1)][pastKeys[i]]?.winner || 0,
+          // rider2: tournament[(position - 1)][pastKeys[i + 1]]?.winner || 0,
+          rider2: tournament[(position - 1)][pastKeys[i + 1]]?.winner || tournament[(position - 1)][pastKeys[i]]?.winner,
+          // winner: tournament[(position - 1)][pastKeys[i]]?.winner === tournament[(position - 1)][pastKeys[i + 1]]?.winner
+          winner: !tournament[(position - 1)][pastKeys[i + 1]]?.winner
+            ? tournament[(position - 1)][pastKeys[i]]?.winner : 0
+        }
+      }
+    }
+    if (Object.keys(tournament[(position)]).length === 1) {
+      return tournament
+    }
+
+    return this.recursiveBuildBrackets(tournament, ++position)
+  }
+
+  async createBracketScore({ request, response, auth, params }) {
+    const { trial_id } = params
+    let tournament = {
+      "0": {}
+    }
+    // "tournament": {
+    //   "0": {
+    //     "0": {
+    //       "rider_1": "42",
+    //       "rider_2": "54",
+    //       "winner": "false"
+    //     },
+    //     "1": {
+    //       "rider_1": "32",
+    //       "rider_2": "14",
+    //       "winner": "false"
+    //     }
+    //   }
+    // }
+
+    const trial = await Trial.findOrFail(trial_id)
+    const event = await trial.event().fetch()
+    let riders = await event.riders().fetch()
+    riders = await riders.toJSON()
+    for (let i = 0; i < riders.length / 2; i++) {
+      tournament["0"][i.toString()] = {
+        rider1: riders[i].id,
+        rider2: riders[(riders.length - 1 - i)].id,
+        winner: riders[(riders.length - 1 - i)].id === riders[i].id ? riders[i].id : 0,
+      }
+    }
+
+
+    // const bracket = await Bracket.create({ trial_id, tournament })
+    // return bracket
+    // return { riders1: riders.slice(0, riders.length / 2), riders2: riders.slice(riders.length / 2, riders.length) }
+    // return { tournament, t: await this.recursiveBuildBrackets(tournament) }
+    return await this.recursiveBuildBrackets(tournament)
+  }
+
+
+  async manualUpdateBracketScore({ request, response, auth }) {
+    const data = request.only([
+      'trial_id',
+      'tournament',
+      'tournament_position',
+    ]);
+    const bracket = await Bracket.findByOrFail({ trial_id: data.trial_id })
+    const tempTournament = { ...await bracket.tournament }
+    tempTournament[data.tournament_position] = { ...tempTournament[data.tournament_position], ...data.tournament }
+    bracket.tournament = tempTournament
+    await bracket.save()
+    return await bracket.toJSON()
+  }
+
+  async deleteTrial({ request, response, auth, params }) {
     const { trial_id } = params
     const trial = await Trial.findOrFail(trial_id)
     trial.active = false;
@@ -1104,6 +1193,19 @@ class ManageEventController {
     ]);
 
     let res = await Trial.create({ name: data.name, type: 'boolean', event_id: data.event_id })
+
+    res = res.toJSON()
+
+    return response.json(res)
+  }
+
+  async createTrialBracket({ request, response, auth }) {
+    const data = request.only([
+      'name',
+      'event_id',
+    ]);
+
+    let res = await Trial.create({ name: data.name, type: 'bracket', event_id: data.event_id })
 
     res = res.toJSON()
 

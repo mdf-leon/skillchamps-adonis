@@ -9,6 +9,10 @@ class Trial extends Model {
     return this.hasMany('App/Models/Score')
   }
 
+  brackets() {
+    return this.hasMany('App/Models/Bracket')
+  }
+
   event() {
     return this.belongsTo('App/Models/Event')
   }
