@@ -1135,6 +1135,21 @@ class ManageEventController {
     // return await this.recursiveBuildBrackets(tournament)
   }
 
+  async updateBracketScore({ request, response, auth, params }) {
+    const { trial_id, tournament_group, group_pair } = params
+    const data = request.only([
+      'winner',
+    ]);
+    const trial = await Trial.findOrFail(trial_id)
+    const event = await trial.event().fetch()
+    const winner = await event.riders().where({"riders.id": data.winner}).first()
+    const bracket = await Bracket.findByOrFail({ trial_id })
+    const tempTournament = { ...await bracket.tournament }
+    tempTournament[tournament_group][group_pair].winner = winner || 0
+    bracket.tournament = tempTournament
+    await bracket.save()
+    return await bracket.toJSON()
+  }
 
   async manualUpdateBracketScore({ request, response, auth }) {
     const data = request.only([

@@ -102,8 +102,9 @@ Route.delete('/trial/:trial_id', 'ManageEventController.deleteTrial').middleware
 Route.post('/addScore', 'ManageEventController.addScore').middleware('auth')
 Route.post('/addBoolScore', 'ManageEventController.addBoolScore').middleware('auth')
 Route.post('/createBracketScore/:trial_id', 'ManageEventController.createBracketScore').middleware('auth')
+Route.put('/bracketScore/:trial_id/:tournament_group/:group_pair', 'ManageEventController.updateBracketScore').middleware('auth')
 // Route.post('/bracketScore', 'ManageEventController.addBracketScore').middleware('auth') // rota de teste
-Route.put('/bracketScore', 'ManageEventController.updateBracketScore').middleware('auth')
+// Route.put('/bracketScore', 'ManageEventController.updateBracketScore').middleware('auth')
 Route.get('/fullRanking/:event_id', 'ManageEventController.fullRanking').middleware('auth')
 Route.get('/fullRanking2', 'ManageEventController.fullRanking2').middleware('auth')
 Route.get('/fullRanking3', 'ManageEventController.fullRanking3')
