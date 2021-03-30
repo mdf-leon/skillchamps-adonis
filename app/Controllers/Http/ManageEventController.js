@@ -1097,6 +1097,11 @@ class ManageEventController {
 
   async createBracketScore({ request, response, auth, params }) {
     const { trial_id } = params
+    const oldBracket = await Bracket.findByOrFail({ trial_id })
+    if(oldBracket){
+      await oldBracket.delete()
+    }
+
     let tournament = {
       "0": {}
     }
