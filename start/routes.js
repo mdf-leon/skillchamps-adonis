@@ -108,6 +108,7 @@ Route.put('/bracketScore/:trial_id/:tournament_group/:group_pair', 'ManageEventC
 Route.get('/fullRanking/:event_id', 'ManageEventController.fullRanking').middleware('auth')
 Route.get('/fullRanking2', 'ManageEventController.fullRanking2').middleware('auth')
 Route.get('/fullRanking3', 'ManageEventController.fullRanking3')
+Route.get('/trial/:trial_id/getBrackets', 'ManageEventController.getBrackets')
 Route.post('/allRanking', 'ManageEventController.allRanking').middleware('auth') //essa rota cria o config do history
 Route.get('/result/event/:event_id', 'ManageEventController.resultRanking')
 

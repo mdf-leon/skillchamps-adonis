@@ -637,6 +637,12 @@ class ManageEventController {
     return { ...event }
   }
 
+  async getBrackets({ request, params, response, auth }) {
+    const { trial_id } = params
+    const bracket = await Bracket.findByOrFail({ trial_id })
+    return bracket
+  }
+
   async resultRanking({ request, params, response }) {
     const { event_id } = params
     // const { events_request } = request.post()
@@ -1076,9 +1082,11 @@ class ManageEventController {
     let tournament = { ...p_tournament }
     tournament[position] = {}
     const pastKeys = Object.keys(tournament[(position - 1)])
+    let pos = 0
     for (let i = 0; i < pastKeys.length; i += 2) {
+      pos = pos + 1;
       tournament[position] = {
-        ...tournament[position], [i]: {
+        ...tournament[position], [pos]: {
           rider1: tournament[(position - 1)][pastKeys[i]]?.winner || 0,
           // rider2: tournament[(position - 1)][pastKeys[i + 1]]?.winner || 0,
           rider2: tournament[(position - 1)][pastKeys[i + 1]]?.winner || tournament[(position - 1)][pastKeys[i]]?.winner,
@@ -1098,7 +1106,7 @@ class ManageEventController {
   async createBracketScore({ request, response, auth, params }) {
     const { trial_id } = params
     const oldBracket = await Bracket.findByOrFail({ trial_id })
-    if(oldBracket){
+    if (oldBracket) {
       await oldBracket.delete()
     }
 
@@ -1147,7 +1155,7 @@ class ManageEventController {
     ]);
     const trial = await Trial.findOrFail(trial_id)
     const event = await trial.event().fetch()
-    const winner = await event.riders().where({"riders.id": data.winner}).first()
+    const winner = await event.riders().where({ "riders.id": data.winner }).first()
     const bracket = await Bracket.findByOrFail({ trial_id })
     const tempTournament = { ...await bracket.tournament }
     tempTournament[tournament_group][group_pair].winner = winner || 0
