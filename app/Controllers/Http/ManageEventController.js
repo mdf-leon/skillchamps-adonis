@@ -1084,7 +1084,6 @@ class ManageEventController {
     const pastKeys = Object.keys(tournament[(position - 1)])
     let pos = 0
     for (let i = 0; i < pastKeys.length; i += 2) {
-      pos = pos + 1;
       tournament[position] = {
         ...tournament[position], [pos]: {
           rider1: tournament[(position - 1)][pastKeys[i]]?.winner || 0,
@@ -1092,9 +1091,10 @@ class ManageEventController {
           rider2: tournament[(position - 1)][pastKeys[i + 1]]?.winner || tournament[(position - 1)][pastKeys[i]]?.winner,
           // winner: tournament[(position - 1)][pastKeys[i]]?.winner === tournament[(position - 1)][pastKeys[i + 1]]?.winner
           winner: !tournament[(position - 1)][pastKeys[i + 1]]?.winner
-            ? tournament[(position - 1)][pastKeys[i]]?.winner : 0
+          ? tournament[(position - 1)][pastKeys[i]]?.winner : 0
         }
       }
+      pos = pos + 1;
     }
     if (Object.keys(tournament[(position)]).length === 1) {
       return tournament
