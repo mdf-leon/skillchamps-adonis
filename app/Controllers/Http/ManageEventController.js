@@ -1116,7 +1116,7 @@ class ManageEventController {
         ...tournament[position], ["1"]: {
           rider1: third1,
           rider2: third2,
-          winner: third1 === third2 ? third1 : {rider1: 0, rider2: 0, winner: {name: 'third place'}}
+          winner: third1 === third2 ? third1 : { rider1: 0, rider2: 0, winner: { name: 'third place' } }
         }
       }
       return tournament
@@ -1181,13 +1181,16 @@ class ManageEventController {
     ]);
     const trial = await Trial.findOrFail(trial_id)
     const event = await trial.event().fetch()
-    const winner = await event.riders().where({ "riders.id": data.winner }).first()
+    let winner = await event.riders().where({ "riders.id": data.winner }).first()
+    winner = winner.toJSON()
+    // console.log(winner);
     const bracket = await Bracket.findByOrFail({ trial_id })
     const tempTournament = { ...await bracket.tournament }
     tempTournament[tournament_group][group_pair].winner = winner || 0
-    bracket.tournament = tempTournament
+    bracket.tournament = {} // fix not updating
+    bracket.tournament = { ...tempTournament }
     await bracket.save()
-    return await bracket.toJSON()
+    return bracket
   }
 
   async manualUpdateBracketScore({ request, response, auth }) {
