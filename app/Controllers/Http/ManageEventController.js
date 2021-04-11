@@ -1188,6 +1188,7 @@ class ManageEventController {
     const tempTournament = { ...await bracket.tournament }
     tempTournament[tournament_group][group_pair].winner = winner || 0
     bracket.tournament = {} // fix not updating
+    await bracket.save() // fix not updating
     bracket.tournament = { ...tempTournament }
     await bracket.save()
     return bracket
