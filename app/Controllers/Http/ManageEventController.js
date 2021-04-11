@@ -1189,7 +1189,7 @@ class ManageEventController {
     tempTournament[tournament_group][group_pair].winner = winner || 0
     bracket.tournament = {} // fix not updating
     await bracket.save() // fix not updating
-    bracket.tournament = { ...tempTournament }
+    bracket.tournament = await recursiveBuildBrackets({ ...tempTournament })
     await bracket.save()
     return bracket
   }
