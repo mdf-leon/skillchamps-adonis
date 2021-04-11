@@ -1165,6 +1165,25 @@ class ManageEventController {
         winner: riders[(riders.length - 1 - i)].id === riders[i].id ? riders[i] : 0,
       }
     }
+    if (Object.keys(tournament["0"]).length % 2 !== 0) {
+      const lastPos = Object.keys(tournament["0"]).length
+      const coupleBeforeLastPos = lastPos - 2
+      const repeatedPos = lastPos - 1
+      const coupleBeforeLastPosObject = {
+        rider1: tournament["0"][coupleBeforeLastPos].rider1,
+        rider2: tournament["0"][coupleBeforeLastPos].rider1,
+        winner: tournament["0"][coupleBeforeLastPos].rider1,
+      }
+      const newLastRider = {
+        rider1: tournament["0"][coupleBeforeLastPos].rider2,
+        rider2: tournament["0"][coupleBeforeLastPos].rider2,
+        winner: tournament["0"][coupleBeforeLastPos].rider2,
+      }
+      tournament["0"][lastPos] = {...newLastRider}
+      tournament["0"][coupleBeforeLastPos] = {...coupleBeforeLastPosObject}
+      // console.log(Object.keys(tournament["0"]).length, Object.keys(tournament["0"]));
+      console.log(lastPos, coupleBeforeLastPosObject, newLastRider);
+    }
 
 
     const bracket = await Bracket.create({ trial_id, tournament: await this.recursiveBuildBrackets(tournament) })
