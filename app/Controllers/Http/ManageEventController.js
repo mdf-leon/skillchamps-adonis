@@ -1091,12 +1091,34 @@ class ManageEventController {
           rider2: tournament[(position - 1)][pastKeys[i + 1]]?.winner || tournament[(position - 1)][pastKeys[i]]?.winner,
           // winner: tournament[(position - 1)][pastKeys[i]]?.winner === tournament[(position - 1)][pastKeys[i + 1]]?.winner
           winner: !tournament[(position - 1)][pastKeys[i + 1]]?.winner
-          ? tournament[(position - 1)][pastKeys[i]]?.winner : 0
+            ? tournament[(position - 1)][pastKeys[i]]?.winner : 0
         }
       }
       pos = pos + 1;
     }
     if (Object.keys(tournament[(position)]).length === 1) {
+      let third1 = {}
+      let third2 = {}
+
+      if (tournament[(position - 1)]["0"]?.winner !== tournament[(position - 1)]["0"].rider1) {
+        third1 = tournament[(position - 1)]["0"].rider1
+      } else if (tournament[(position - 1)]["0"]?.winner !== tournament[(position - 1)]["0"].rider2) {
+        third1 = tournament[(position - 1)]["0"].rider2
+      }
+
+      if (tournament[(position - 1)]["1"]?.winner !== tournament[(position - 1)]["1"].rider1) {
+        third2 = tournament[(position - 1)]["1"].rider1
+      } else if (tournament[(position - 1)]["1"]?.winner !== tournament[(position - 1)]["1"].rider2) {
+        third2 = tournament[(position - 1)]["1"].rider2
+      }
+
+      tournament[position] = {
+        ...tournament[position], ["1"]: {
+          rider1: third1,
+          rider2: third2,
+          winner: third1 === third2 ? third1 : {rider1: 0, rider2: 0, winner: {name: 'third place'}}
+        }
+      }
       return tournament
     }
 
@@ -1105,9 +1127,13 @@ class ManageEventController {
 
   async createBracketScore({ request, response, auth, params }) {
     const { trial_id } = params
-    const oldBracket = await Bracket.findByOrFail({ trial_id })
-    if (oldBracket) {
-      await oldBracket.delete()
+    try {
+      const oldBracket = await Bracket.findByOrFail({ trial_id })
+      if (oldBracket) {
+        await oldBracket.delete()
+      }
+    } catch (error) {
+      console.log('oldBracket not found');
     }
 
     let tournament = {
