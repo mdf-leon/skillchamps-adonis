@@ -1086,6 +1086,7 @@ class ManageEventController {
     for (let i = 0; i < pastKeys.length; i += 2) {
       tournament[position] = {
         ...tournament[position], [pos]: {
+          type: 'normal',
           rider1: tournament[(position - 1)][pastKeys[i]]?.winner || 0,
           // rider2: tournament[(position - 1)][pastKeys[i + 1]]?.winner || 0,
           rider2: tournament[(position - 1)][pastKeys[i + 1]]?.winner || tournament[(position - 1)][pastKeys[i]]?.winner,
@@ -1114,6 +1115,7 @@ class ManageEventController {
 
       tournament[position] = {
         ...tournament[position], ["1"]: {
+          type: 'third',
           rider1: third1,
           rider2: third2,
           winner: third1 === third2 ? third1 : { rider1: 0, rider2: 0, winner: { name: 'third place' } }
@@ -1160,6 +1162,7 @@ class ManageEventController {
     riders = await riders.toJSON()
     for (let i = 0; i < riders.length / 2; i++) {
       tournament["0"][i.toString()] = {
+        type: 'single',
         rider1: riders[i],
         rider2: riders[(riders.length - 1 - i)],
         winner: riders[(riders.length - 1 - i)].id === riders[i].id ? riders[i] : 0,
@@ -1179,8 +1182,8 @@ class ManageEventController {
         rider2: tournament["0"][coupleBeforeLastPos].rider2,
         winner: tournament["0"][coupleBeforeLastPos].rider2,
       }
-      tournament["0"][lastPos] = {...newLastRider}
-      tournament["0"][coupleBeforeLastPos] = {...coupleBeforeLastPosObject}
+      tournament["0"][lastPos] = { ...newLastRider }
+      tournament["0"][coupleBeforeLastPos] = { ...coupleBeforeLastPosObject }
       // console.log(Object.keys(tournament["0"]).length, Object.keys(tournament["0"]));
       // console.log(lastPos, coupleBeforeLastPosObject, newLastRider);
     }
