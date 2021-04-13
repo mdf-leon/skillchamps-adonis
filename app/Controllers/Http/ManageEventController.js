@@ -1088,9 +1088,10 @@ class ManageEventController {
         ...tournament[position], [pos]: {
           type: 'normal',
           rider1: tournament[(position - 1)][pastKeys[i]]?.winner || 0,
-          // rider2: tournament[(position - 1)][pastKeys[i + 1]]?.winner || 0,
-          rider2: tournament[(position - 1)][pastKeys[i + 1]]?.winner || tournament[(position - 1)][pastKeys[i]]?.winner,
-          // winner: tournament[(position - 1)][pastKeys[i]]?.winner === tournament[(position - 1)][pastKeys[i + 1]]?.winner
+          // rider2: tournament[(position - 1)][pastKeys[i + 1]]?.winner || 0, // wrong
+          rider2: tournament[(position - 1)][pastKeys[i + 1]]?.winner || 0,
+          // rider2: tournament[(position - 1)][pastKeys[i + 1]]?.winner || tournament[(position - 1)][pastKeys[i]]?.winner, // legacy
+          // winner: tournament[(position - 1)][pastKeys[i]]?.winner === tournament[(position - 1)][pastKeys[i + 1]]?.winner // wrong
           winner: !tournament[(position - 1)][pastKeys[i + 1]]?.winner
             ? tournament[(position - 1)][pastKeys[i]]?.winner : 0
         }
@@ -1173,11 +1174,13 @@ class ManageEventController {
       const coupleBeforeLastPos = lastPos - 2
       const repeatedPos = lastPos - 1
       const coupleBeforeLastPosObject = {
+        type: 'single',
         rider1: tournament["0"][coupleBeforeLastPos].rider1,
         rider2: tournament["0"][coupleBeforeLastPos].rider1,
         winner: tournament["0"][coupleBeforeLastPos].rider1,
       }
       const newLastRider = {
+        type: 'single',
         rider1: tournament["0"][coupleBeforeLastPos].rider2,
         rider2: tournament["0"][coupleBeforeLastPos].rider2,
         winner: tournament["0"][coupleBeforeLastPos].rider2,
@@ -1187,11 +1190,47 @@ class ManageEventController {
       // console.log(Object.keys(tournament["0"]).length, Object.keys(tournament["0"]));
       // console.log(lastPos, coupleBeforeLastPosObject, newLastRider);
     }
+
+    function IsPowerOfTwo(num) {
+      return (num != 0) && ((num & (num - 1)) == 0);
+    }
+
+    function makeItPowerOfTwo(whilePos = 0) {
+      const lastPos = Object.keys(tournament["0"]).length
+      const newAtWhilePos = {
+        type: 'single',
+        rider1: tournament["0"][whilePos].rider1,
+        rider2: tournament["0"][whilePos].rider1,
+        winner: tournament["0"][whilePos].rider1,
+      }
+      const newLastRider = {
+        type: 'single',
+        rider1: tournament["0"][whilePos].rider2,
+        rider2: tournament["0"][whilePos].rider2,
+        winner: tournament["0"][whilePos].rider2,
+      }
+      tournament["0"][lastPos.toString()] = { ...newLastRider }
+      tournament["0"][whilePos] = { ...newAtWhilePos }
+      if (IsPowerOfTwo(Object.keys(tournament["0"]).length)) {
+        return whilePos
+      }
+      return makeItPowerOfTwo(whilePos + 1)
+    }
+
+    if (!IsPowerOfTwo(Object.keys(tournament["0"]).length)) {
+      makeItPowerOfTwo(0)
+    }
+
     // console.log(Object.keys(tournament["0"]).length);
 
 
-    const bracket = await Bracket.create({ trial_id, tournament: await this.recursiveBuildBrackets(tournament) })
-    return bracket
+    let bracket = await Bracket.create({ trial_id, tournament: await this.recursiveBuildBrackets(tournament) })
+    bracket = bracket.toJSON()
+    return {
+      "0length": Object.keys(bracket.tournament["0"]).length || 0,
+      "1length": Object.keys(bracket.tournament["1"]).length || 0,
+      bracket
+    }
     // return { riders1: riders.slice(0, riders.length / 2), riders2: riders.slice(riders.length / 2, riders.length) }
     // return { tournament, t: await this.recursiveBuildBrackets(tournament) }
     // return await this.recursiveBuildBrackets(tournament)
