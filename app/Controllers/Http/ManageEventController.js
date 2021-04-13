@@ -1227,6 +1227,7 @@ class ManageEventController {
     let bracket = await Bracket.create({ trial_id, tournament: await this.recursiveBuildBrackets(tournament) })
     bracket = bracket.toJSON()
     return {
+      "r_length": riders.length,
       "0length": Object.keys(bracket.tournament["0"]).length || 0,
       "1length": Object.keys(bracket.tournament["1"]).length || 0,
       bracket
