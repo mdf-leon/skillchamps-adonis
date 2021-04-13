@@ -1182,8 +1182,9 @@ class ManageEventController {
       tournament["0"][lastPos] = {...newLastRider}
       tournament["0"][coupleBeforeLastPos] = {...coupleBeforeLastPosObject}
       // console.log(Object.keys(tournament["0"]).length, Object.keys(tournament["0"]));
-      console.log(lastPos, coupleBeforeLastPosObject, newLastRider);
+      // console.log(lastPos, coupleBeforeLastPosObject, newLastRider);
     }
+    // console.log(Object.keys(tournament["0"]).length);
 
 
     const bracket = await Bracket.create({ trial_id, tournament: await this.recursiveBuildBrackets(tournament) })
@@ -1202,15 +1203,15 @@ class ManageEventController {
     const event = await trial.event().fetch()
     let winner = await event.riders().where({ "riders.id": data.winner }).first()
     winner = winner.toJSON()
-    // console.log(winner);
     const bracket = await Bracket.findByOrFail({ trial_id })
     const tempTournament = { ...await bracket.tournament }
     tempTournament[tournament_group][group_pair].winner = winner || 0
+    console.log(tempTournament[tournament_group][group_pair], tournament_group);
     bracket.tournament = {} // fix not updating
     await bracket.save() // fix not updating
-    bracket.tournament = await this.recursiveBuildBrackets({ ...tempTournament })
+    bracket.tournament = await this.recursiveBuildBrackets({ ...tempTournament }, Number(tournament_group) + 1)
     await bracket.save()
-    return bracket
+    return await Bracket.findByOrFail({ trial_id })
   }
 
   async manualUpdateBracketScore({ request, response, auth }) {
