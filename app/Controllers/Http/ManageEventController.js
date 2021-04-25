@@ -1080,6 +1080,11 @@ class ManageEventController {
 
   async recursiveBuildBrackets(p_tournament, position = 1) {
     let tournament = { ...p_tournament }
+    if (tournament[(position - 1)]["1"]?.type === 'third') {
+      console.log('cond. parada');
+      return tournament
+    }
+    
     tournament[position] = {}
     const pastKeys = Object.keys(tournament[(position - 1)])
     let pos = 0
@@ -1092,26 +1097,33 @@ class ManageEventController {
           rider2: tournament[(position - 1)][pastKeys[i + 1]]?.winner || 0,
           // rider2: tournament[(position - 1)][pastKeys[i + 1]]?.winner || tournament[(position - 1)][pastKeys[i]]?.winner, // legacy
           // winner: tournament[(position - 1)][pastKeys[i]]?.winner === tournament[(position - 1)][pastKeys[i + 1]]?.winner // wrong
-          winner: !tournament[(position - 1)][pastKeys[i + 1]]?.winner
-            ? tournament[(position - 1)][pastKeys[i]]?.winner : 0
+          // winner: !tournament[(position - 1)][pastKeys[i + 1]]?.winner
+          //   ? tournament[(position - 1)][pastKeys[i]]?.winner : 0
+          winner: 0
         }
       }
       pos = pos + 1;
     }
     if (Object.keys(tournament[(position)]).length === 1) {
+      console.log('d ', tournament[(position - 1)]["1"]?.type);
       let third1 = {}
       let third2 = {}
 
-      if (tournament[(position - 1)]["0"]?.winner !== tournament[(position - 1)]["0"].rider1) {
-        third1 = tournament[(position - 1)]["0"].rider1
-      } else if (tournament[(position - 1)]["0"]?.winner !== tournament[(position - 1)]["0"].rider2) {
-        third1 = tournament[(position - 1)]["0"].rider2
+      if (tournament[(position - 1)]["0"]?.winner?.id) {
+        if (tournament[(position - 1)]["0"]?.winner?.id !== tournament[(position - 1)]["0"].rider1?.id) {
+          third1 = tournament[(position - 1)]["0"].rider1
+        } else if (tournament[(position - 1)]["0"]?.winner?.id !== tournament[(position - 1)]["0"].rider2?.id) {
+          third1 = tournament[(position - 1)]["0"].rider2
+        }
       }
 
-      if (tournament[(position - 1)]["1"]?.winner !== tournament[(position - 1)]["1"].rider1) {
-        third2 = tournament[(position - 1)]["1"].rider1
-      } else if (tournament[(position - 1)]["1"]?.winner !== tournament[(position - 1)]["1"].rider2) {
-        third2 = tournament[(position - 1)]["1"].rider2
+
+      if (tournament[(position - 1)]["1"]?.winner?.id) {
+        if (tournament[(position - 1)]["1"]?.winner?.id !== tournament[(position - 1)]["1"].rider1?.id) {
+          third2 = tournament[(position - 1)]["1"].rider1
+        } else if (tournament[(position - 1)]["1"]?.winner?.id !== tournament[(position - 1)]["1"].rider2?.id) {
+          third2 = tournament[(position - 1)]["1"].rider2
+        }
       }
 
       tournament[position] = {
@@ -1122,6 +1134,7 @@ class ManageEventController {
           winner: third1 === third2 ? third1 : { rider1: 0, rider2: 0, winner: { name: 'third place' } }
         }
       }
+      // console.log(tournament[(position)]);
       return tournament
     }
 
@@ -1249,7 +1262,7 @@ class ManageEventController {
     const bracket = await Bracket.findByOrFail({ trial_id })
     const tempTournament = { ...await bracket.tournament }
     tempTournament[tournament_group][group_pair].winner = winner || 0
-    console.log(tempTournament[tournament_group][group_pair], tournament_group);
+    // console.log(tempTournament[tournament_group][group_pair], tournament_group);
     bracket.tournament = {} // fix not updating
     await bracket.save() // fix not updating
     bracket.tournament = await this.recursiveBuildBrackets({ ...tempTournament }, Number(tournament_group) + 1)
