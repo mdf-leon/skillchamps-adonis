@@ -679,6 +679,7 @@ class ManageEventController {
       event.category2_chosen = even.category2
       event = event.toJSON()
 
+      event.trial_name = event.trials.find(el => el.id === Number(even.trial_id))?.name
       if (event.trials.find(el => el.id === Number(even.trial_id))?.type === 'bracket') {
         let bracket = await Bracket.findByOrFail({ trial_id: even.trial_id })
         let finalists = bracket.tournament[Object.keys(bracket.tournament).length - 1]
@@ -720,7 +721,6 @@ class ManageEventController {
         // console.log(event.riders)
         // event.riders.sort(event.riders[0].scores && event.riders[0].scores.trial.inverted ? this.sortMoreTime : this.sortLessTime);
         event.riders.sort(this.sortLessTime)
-        event.trial_name = event.trials.find(el => el.id === Number(even.trial_id))?.name
         if (event.riders[0]?.scores.trial.inverted) {
           event.riders.reverse();
         }
@@ -848,6 +848,7 @@ class ManageEventController {
       event.category2_chosen = even.category2
       event = event.toJSON()
 
+      event.trial_name = event.trials.find(el => el.id === Number(even.trial_id))?.name
       if (event.trials.find(el => el.id === Number(even.trial_id))?.type === 'bracket') {
         let bracket = await Bracket.findByOrFail({ trial_id: even.trial_id })
         let finalists = bracket.tournament[Object.keys(bracket.tournament).length - 1]
@@ -890,7 +891,6 @@ class ManageEventController {
         // console.log(event.riders)
         // event.riders.sort(event.riders[0].scores && event.riders[0].scores.trial.inverted ? this.sortMoreTime : this.sortLessTime);
         event.riders.sort(this.sortLessTime)
-        event.trial_name = event.trials.find(el => el.id === Number(even.trial_id))?.name
         if (event.riders[0]?.scores.trial.inverted) {
           event.riders.reverse();
         }
