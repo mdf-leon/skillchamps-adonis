@@ -720,7 +720,7 @@ class ManageEventController {
         // console.log(event.riders)
         // event.riders.sort(event.riders[0].scores && event.riders[0].scores.trial.inverted ? this.sortMoreTime : this.sortLessTime);
         event.riders.sort(this.sortLessTime)
-        event.trial_name = event.riders[0].scores.trial.name
+        event.trial_name = event.trials.find(el => el.id === Number(even.trial_id))?.name
         if (event.riders[0].scores.trial.inverted) {
           event.riders.reverse();
         }
