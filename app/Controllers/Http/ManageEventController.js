@@ -668,6 +668,7 @@ class ManageEventController {
     let r_p_final = []
     for (const even of events_request) {
       let event = await Event.query()
+        .with('trials')
         .with('riders.scores.trial')
         .with('riders.scores.penalties')
         .with('riders.scores.bonuses')
@@ -678,64 +679,89 @@ class ManageEventController {
       event.category2_chosen = even.category2
       event = event.toJSON()
 
-      // let filtered = []
-      for (let i = 0; i < event.riders.length; i++) {
-        event.riders[i].scores =
-          event.riders[i].scores.filter(score => {
-            return score.trial.id == even.trial_id
-          })[0]
-        if (!event.riders[i].scores) {
-          delete event.riders[i]
+      if (event.trials.find(el => el.id === Number(even.trial_id))?.type === 'bracket') {
+        let bracket = await Bracket.findByOrFail({ trial_id: even.trial_id })
+        let finalists = bracket.tournament[Object.keys(bracket.tournament).length - 1]
+        let first = finalists['0'].winner
+        let second = finalists['0'].rider1.id !== finalists['0'].winner.id ? finalists['0'].rider1 : finalists['0'].rider2
+        let third = finalists['1'].winner
+        riders_points[first.id.toString()] = {
+          id: first.id,
+          name: first.name,
+          points: riders_points[first.id] ? riders_points[first.id].points + 100 : 100
         }
-      }
-
-
-
-      // if(!event.riders[1]) console.log("a")
-      // console.log(event.riders)
-      // event.riders.sort(event.riders[0].scores && event.riders[0].scores.trial.inverted ? this.sortMoreTime : this.sortLessTime);
-      event.riders.sort(this.sortLessTime)
-      event.trial_name = event.riders[0].scores.trial.name
-      if (event.riders[0].scores.trial.inverted) {
-        event.riders.reverse();
-      }
-
-      // for (let i = 0; i < event.riders.length; i++) {
-
-      // }
-      event.riders = event.riders.filter(function (el) { // DELETES EMPTY POSITIONS IN ARRAY
-        return el != null;
-      });
-
-      const points = [100, 80, 60, 40, 20, 5];
-      for (const i in event.riders) {
-        if (even.category && even.category !== "null" && even.category !== "none" && event.riders[i].category !== even.category) {
-          // event.riders[i] = undefined
-          delete event.riders[i]
-          continue
+        riders_points[second.id.toString()] = {
+          id: second.id,
+          name: second.name,
+          points: riders_points[second.id] ? riders_points[second.id].points + 80 : 80
         }
-        if (even.category2 && even.category2 !== "null" && even.category2 !== "none" && event.riders[i].category2 !== even.category2) {
-          delete event.riders[i]; continue;
+        riders_points[third.id.toString()] = {
+          id: third.id,
+          name: third.name,
+          points: riders_points[third.id] ? riders_points[third.id].points + 60 : 60
         }
-        event.riders[i].position = Number(i) + 1
-        event.riders[i].treated_time_total = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time_total : 0)
-        event.riders[i].treated_time = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time : 0)
-        // console.log(event.riders[i].id);
+      } else {
 
-        if (event.riders[i].scores && points[i]) {
-          riders_points[event.riders[i].id.toString()] = {
-            id: event.riders[i].id,
-            name: event.riders[i].name,
-            points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + points[i] : points[i]
+
+        // let filtered = []
+        for (let i = 0; i < event.riders.length; i++) {
+          event.riders[i].scores =
+            event.riders[i].scores.filter(score => {
+              return score.trial.id == even.trial_id
+            })[0]
+          if (!event.riders[i].scores) {
+            delete event.riders[i]
           }
         }
+
+
+
+        // if(!event.riders[1]) console.log("a")
+        // console.log(event.riders)
+        // event.riders.sort(event.riders[0].scores && event.riders[0].scores.trial.inverted ? this.sortMoreTime : this.sortLessTime);
+        event.riders.sort(this.sortLessTime)
+        event.trial_name = event.riders[0].scores.trial.name
+        if (event.riders[0].scores.trial.inverted) {
+          event.riders.reverse();
+        }
+
+        // for (let i = 0; i < event.riders.length; i++) {
+
+        // }
+        event.riders = event.riders.filter(function (el) { // DELETES EMPTY POSITIONS IN ARRAY
+          return el != null;
+        });
+
+        const points = [100, 80, 60, 40, 20, 5];
+        for (const i in event.riders) {
+          if (even.category && even.category !== "null" && even.category !== "none" && event.riders[i].category !== even.category) {
+            // event.riders[i] = undefined
+            delete event.riders[i]
+            continue
+          }
+          if (even.category2 && even.category2 !== "null" && even.category2 !== "none" && event.riders[i].category2 !== even.category2) {
+            delete event.riders[i]; continue;
+          }
+          event.riders[i].position = Number(i) + 1
+          event.riders[i].treated_time_total = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time_total : 0)
+          event.riders[i].treated_time = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time : 0)
+          // console.log(event.riders[i].id);
+
+          if (event.riders[i].scores && points[i]) {
+            riders_points[event.riders[i].id.toString()] = {
+              id: event.riders[i].id,
+              name: event.riders[i].name,
+              points: riders_points[event.riders[i].id] ? riders_points[event.riders[i].id].points + points[i] : points[i]
+            }
+          }
+        }
+
+        event.riders = event.riders.filter(function (el) { // TODO: check necessity
+          return el != null;
+        });
+
+
       }
-
-      event.riders = event.riders.filter(function (el) { // TODO: check necessity
-        return el != null;
-      });
-
-
 
 
       // riders_points = {...riders_points}
