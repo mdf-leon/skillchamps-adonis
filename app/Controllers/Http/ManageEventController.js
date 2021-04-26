@@ -721,7 +721,7 @@ class ManageEventController {
         // event.riders.sort(event.riders[0].scores && event.riders[0].scores.trial.inverted ? this.sortMoreTime : this.sortLessTime);
         event.riders.sort(this.sortLessTime)
         event.trial_name = event.trials.find(el => el.id === Number(even.trial_id))?.name
-        if (event.riders[0].scores.trial.inverted) {
+        if (event.riders[0]?.scores.trial.inverted) {
           event.riders.reverse();
         }
 
@@ -743,11 +743,11 @@ class ManageEventController {
             delete event.riders[i]; continue;
           }
           event.riders[i].position = Number(i) + 1
-          event.riders[i].treated_time_total = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time_total : 0)
-          event.riders[i].treated_time = this.msToDefault(event.riders[i].scores ? event.riders[i].scores.time : 0)
+          event.riders[i].treated_time_total = this.msToDefault(event.riders[i]?.scores ? event.riders[i]?.scores.time_total : 0)
+          event.riders[i].treated_time = this.msToDefault(event.riders[i]?.scores ? event.riders[i]?.scores.time : 0)
           // console.log(event.riders[i].id);
 
-          if (event.riders[i].scores && points[i]) {
+          if (event.riders[i]?.scores && points[i]) {
             riders_points[event.riders[i].id.toString()] = {
               id: event.riders[i].id,
               name: event.riders[i].name,
