@@ -573,6 +573,7 @@ class ManageEventController {
 
     event = event.toJSON()
 
+    let trial = await Trial.findOrFail(get.trial_id)
     // let filtered = []
     for (let i = 0; i < event.riders.length; i++) {
       event.riders[i].scores =
@@ -597,6 +598,10 @@ class ManageEventController {
       }
       return 0;
     });
+    if(trial.inverted){
+      event.riders = event.riders.reverse();
+      // console.log(event.riders[0].name, event.riders[0]);
+    }
 
     for (const i in event.riders) {
       if (get.category && get.category !== "null" && get.category !== "none" && event.riders[i].category !== get.category) {
@@ -633,6 +638,7 @@ class ManageEventController {
     event.riders = event.riders.filter(function (el) {
       return el != null;
     });
+
 
     return { ...event }
   }
