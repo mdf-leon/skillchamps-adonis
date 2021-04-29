@@ -585,7 +585,6 @@ class ManageEventController {
     // if(!event.riders[1]) console.log("a")
     // console.log(event.riders)
     event.riders.sort(function (riderA, riderB) {
-
       let timeA = riderA.scores ? riderA.scores.time_total : null
       let timeB = riderB.scores ? riderB.scores.time_total : null
       if (!timeA) return 1
@@ -600,6 +599,7 @@ class ManageEventController {
     });
     if(trial.inverted){
       event.riders = event.riders.reverse();
+      event.riders = event.riders.filter(rider => rider.scores);
       // console.log(event.riders[0].name, event.riders[0]);
     }
 
