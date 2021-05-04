@@ -1193,7 +1193,7 @@ class ManageEventController {
           type: 'third',
           rider1: third1,
           rider2: third2,
-          winner: third1 === third2 ? third1 : { rider1: 0, rider2: 0, winner: { name: 'third place' } }
+          // winner: third1 === third2 ? third1 : { rider1: 0, rider2: 0, winner: { name: 'third place' } }
         }
       }
       // console.log(tournament[(position)]);
