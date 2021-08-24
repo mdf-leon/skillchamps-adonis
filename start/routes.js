@@ -42,6 +42,14 @@ Route.get('/', 'AppController.index');
 Route.post('/register', 'AuthController.register'); // sign up
 Route.post('/authenticate', 'AuthController.authenticate'); // sign in
 
+// google auth
+Route.get('/login/google', 'AuthController.googleR')
+Route.get('/authenticated/google', 'AuthController.googleCB')
+// facebook auth http://localhost:3333/login/facebook
+Route.get('/login/facebook', 'AuthController.facebookR')
+Route.get('/authenticated/facebook', 'AuthController.facebookCB')
+
+
 Route.get('/showUser', 'UserController.showUser').middleware('auth');
 Route.get('/indexUser', 'UserController.index') //.middleware('auth');
 

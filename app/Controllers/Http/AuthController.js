@@ -1,83 +1,172 @@
-'use strict'
+"use strict";
 
-const Database = use('Database')
+const Database = use("Database");
 
-const User = use('App/Models/User');
-const Rider = use('App/Models/Rider')
-const Event = use('App/Models/Event')
-const Notification = use('App/Models/Notification')
-const Institute = use('App/Models/Institute')
-const Token = use('App/Models/Token')
+const User = use("App/Models/User");
+const Rider = use("App/Models/Rider");
+const Event = use("App/Models/Event");
+const Notification = use("App/Models/Notification");
+const Institute = use("App/Models/Institute");
+const Token = use("App/Models/Token");
 
 class AuthController {
+  async googleR({ ally }) {
+    await ally.driver("google").redirect();
+  }
+  async googleCB({ ally, auth }) {
+    try {
+      const gUser = await ally.driver("google").getUser();
 
-    async register({ request, response }) {
+      // user details to be saved
+      const userDetails = {
+        email: gUser.getEmail(),
+        // token: gUser.getAccessToken(),
+        password: `sc-default-pw-${gUser.getId()}`,
+        account_provider: "google",
+        account_provider_id: gUser.getId(),
+      };
 
-        await Database.transaction(async (trx) => {
-            const data = await request.only(['name', 'email', 'password']);
-            const rpw = await request.only(['r_password'])
-            if (data.password == rpw.r_password) {
-                let user = await User.create(data);
-                user = user.toJSON();
-                delete user.password;
-                return response.json(user);
-            } else {
-                return response.status(400).json({ Error: 'Passwords do not match' })
-            }
+      // search for existing user
+      const whereClause = {
+        email: gUser.getEmail(),
+      };
 
-        }).catch((e) => {
-            return response.status(500).json({ Error: e.sqlMessage, stack: e.stack, trace: e.trace, msg: e.message })
-        })
+      const user = await User.findOrCreate(whereClause, userDetails);
 
+      const token = await auth.generate(user);
+      if (token) {
+        const events = await user.eventsOnManagement().fetch();
+        const institute = await user.institute().fetch();
+        const userInfo = { id: user.id, email: user.email };
+        const rider = await user.rider().fetch();
+        return {
+          ...token,
+          user: userInfo,
+          rider,
+          eventsOnManagement: events,
+          institute,
+        };
+      }
+    } catch (error) {
+      console.log(error);
+      return "Unable to authenticate. Try again later";
     }
+  }
 
+  async facebookR({ ally }) {
+    await ally.driver("facebook").redirect();
+  }
+  async facebookCB({ ally, auth }) {
+    try {
+      const gUser = await ally.driver("facebook").getUser();
 
+      // user details to be saved
+      const userDetails = {
+        email: gUser.getEmail(),
+        // token: gUser.getAccessToken(),
+        password: `sc-default-pw-${gUser.getId()}`,
+        account_provider: "facebook",
+        account_provider_id: gUser.getId(),
+      };
 
-    async authenticate({ request, auth }) {
-        const { email, password } = request.all();
+      // search for existing user
+      const whereClause = {
+        email: gUser.getEmail(),
+      };
 
-        const token = await auth.attempt(email, password);
-        if (token) {
-            const user = await User.findByOrFail({ email })
-            const events = await user.eventsOnManagement().fetch()
-            const institute = await user.institute().fetch()
-            const userInfo = { id: user.id, email: user.email }
-            const rider = await user.rider().fetch()
-            return { ...token, user: userInfo, rider, eventsOnManagement: events, institute }
-        }
-        //retorna o erro do token
-        return token
-        // const tok = await Token.findOrFail(token.id);
-        // // return tok
-        // const user = await tok.user().fetch()
-        // return {...token, user: {...user}};
+      const user = await User.findOrCreate(whereClause, userDetails);
+
+      const token = await auth.generate(user);
+      if (token) {
+        const events = await user.eventsOnManagement().fetch();
+        const institute = await user.institute().fetch();
+        const userInfo = { id: user.id, email: user.email };
+        const rider = await user.rider().fetch();
+        return {
+          ...token,
+          user: userInfo,
+          rider,
+          eventsOnManagement: events,
+          institute,
+        };
+      }
+    } catch (error) {
+      console.log(error);
+      return "Unable to authenticate. Try again later";
     }
+  }
 
-    async notifications({ request, auth }) {
-        let notes = []
-        if (request.all().institute_id)
-            notes = (await Institute.findOrFail(request.all().institute_id))
-                .notifications().fetch()
-        else if (request.all().event_id)
-            notes = (await Event.findOrFail(request.all().event_id))
-                .notifications().fetch()
-        else if (request.all().user_id)
-            notes = (await User.findOrFail(request.all().user_id))
-                .notifications().fetch()
-        else
-            notes = (await auth.getUser()).notifications().fetch()
-        return (await notes).toJSON().reverse()
+  async register({ request, response }) {
+    await Database.transaction(async (trx) => {
+      const data = await request.only(["name", "email", "password"]);
+      const rpw = await request.only(["r_password"]);
+      if (data.password == rpw.r_password) {
+        let user = await User.create(data);
+        user = user.toJSON();
+        delete user.password;
+        return response.json(user);
+      } else {
+        return response.status(400).json({ Error: "Passwords do not match" });
+      }
+    }).catch((e) => {
+      return response.status(500).json({
+        Error: e.sqlMessage,
+        stack: e.stack,
+        trace: e.trace,
+        msg: e.message,
+      });
+    });
+  }
+
+  async authenticate({ request, auth }) {
+    const { email, password } = request.all();
+
+    const token = await auth.attempt(email, password);
+    if (token) {
+      const user = await User.findByOrFail({ email });
+      const events = await user.eventsOnManagement().fetch();
+      const institute = await user.institute().fetch();
+      const userInfo = { id: user.id, email: user.email };
+      const rider = await user.rider().fetch();
+      return {
+        ...token,
+        user: userInfo,
+        rider,
+        eventsOnManagement: events,
+        institute,
+      };
     }
+    //retorna o erro do token
+    return token;
+    // const tok = await Token.findOrFail(token.id);
+    // // return tok
+    // const user = await tok.user().fetch()
+    // return {...token, user: {...user}};
+  }
 
-    async instituteNotifications({ request, auth }) {
+  async notifications({ request, auth }) {
+    let notes = [];
+    if (request.all().institute_id)
+      notes = (await Institute.findOrFail(request.all().institute_id))
+        .notifications()
+        .fetch();
+    else if (request.all().event_id)
+      notes = (await Event.findOrFail(request.all().event_id))
+        .notifications()
+        .fetch();
+    else if (request.all().user_id)
+      notes = (await User.findOrFail(request.all().user_id))
+        .notifications()
+        .fetch();
+    else notes = (await auth.getUser()).notifications().fetch();
+    return (await notes).toJSON().reverse();
+  }
 
-    }
+  async instituteNotifications({ request, auth }) {}
 
-    // async registerRider({ request, response }) {
+  // async registerRider({ request, response }) {
 
-    // }
-
+  // }
 }
 
-module.exports = AuthController
-
+module.exports = AuthController;
