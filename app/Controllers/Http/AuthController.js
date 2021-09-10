@@ -39,7 +39,8 @@ class AuthController {
         // const institute = await user.institute().fetch();
         // const userInfo = { id: user.id, email: user.email };
         // const rider = await user.rider().fetch();
-        return response.redirect(`http://beta.skillchamps.net/dashboard/home?token=${token.token}&type=${token.type}`)
+        return token
+        response.redirect(`http://beta.skillchamps.net/dashboard/home?token=${token.token}&type=${token.type}`)
         // return {
         //   ...token,
         //   user: userInfo,
