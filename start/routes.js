@@ -41,6 +41,7 @@ Route.get('/a', ({response}) => {
 Route.get('/', 'AppController.index');
 Route.post('/register', 'AuthController.register'); // sign up
 Route.post('/authenticate', 'AuthController.authenticate'); // sign in
+Route.post('/user', 'AuthController.user'); // sign in and return user for the oauth2 routes
 
 // google auth
 Route.get('/login/google', 'AuthController.googleR')
