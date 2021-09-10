@@ -54,11 +54,14 @@ class AuthController {
       };
 
       const user = await User.findOrCreate(whereClause, userDetails);
-      await Rider.create({
-        user_id: user.id,
-        name: gUser.getName(),
-        active: true,
-      });
+      await Rider.findOrCreate(
+        { user_id: user.id },
+        {
+          user_id: user.id,
+          name: gUser.getName(),
+          active: true,
+        }
+      );
 
       const token = await auth.generate(user);
       if (token) {
