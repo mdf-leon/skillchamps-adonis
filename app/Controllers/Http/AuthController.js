@@ -14,6 +14,7 @@ class AuthController {
     // const { token } = request.all();
 
     // const token = await auth.attempt(email, password);
+    try {
       const user = await User.find(auth.user.id);
       const events = await user.eventsOnManagement().fetch();
       const institute = await user.institute().fetch();
@@ -26,6 +27,9 @@ class AuthController {
         eventsOnManagement: events,
         institute,
       };
+    } catch (error) {
+      return error.message;
+    }
   }
   async googleR({ ally }) {
     await ally.driver("google").redirect();
@@ -57,7 +61,9 @@ class AuthController {
         // const userInfo = { id: user.id, email: user.email };
         // const rider = await user.rider().fetch();
         // return token
-        response.redirect(`http://beta.skillchamps.net/LoginRedirect?token=${token.token}&type=${token.type}`)
+        response.redirect(
+          `http://beta.skillchamps.net/LoginRedirect?token=${token.token}&type=${token.type}`
+        );
         // return {
         //   ...token,
         //   user: userInfo,
@@ -68,7 +74,7 @@ class AuthController {
       }
     } catch (error) {
       console.log(error);
-      return "Unable to authenticate. Try again later "+ error.message;
+      return "Unable to authenticate. Try again later " + error.message;
     }
   }
 
