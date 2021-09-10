@@ -15,17 +15,18 @@ class AuthController {
 
     // const token = await auth.attempt(email, password);
       const user = await User.find(auth.user.id);
-      const events = await user.eventsOnManagement().fetch();
-      const institute = await user.institute().fetch();
-      const userInfo = { id: user.id, email: user.email };
-      const rider = await user.rider().fetch();
-      return {
-        ...token,
-        user: userInfo,
-        rider,
-        eventsOnManagement: events,
-        institute,
-      };
+      return user.toJSON()
+      // const events = await user.eventsOnManagement().fetch();
+      // const institute = await user.institute().fetch();
+      // const userInfo = { id: user.id, email: user.email };
+      // const rider = await user.rider().fetch();
+      // return {
+      //   ...token,
+      //   user: userInfo,
+      //   rider,
+      //   eventsOnManagement: events,
+      //   institute,
+      // };
   }
   async googleR({ ally }) {
     await ally.driver("google").redirect();
