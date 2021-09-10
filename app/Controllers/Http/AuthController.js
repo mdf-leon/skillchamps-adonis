@@ -35,17 +35,18 @@ class AuthController {
 
       const token = await auth.generate(user);
       if (token) {
-        const events = await user.eventsOnManagement().fetch();
-        const institute = await user.institute().fetch();
-        const userInfo = { id: user.id, email: user.email };
-        const rider = await user.rider().fetch();
-        return {
-          ...token,
-          user: userInfo,
-          rider,
-          eventsOnManagement: events,
-          institute,
-        };
+        // const events = await user.eventsOnManagement().fetch();
+        // const institute = await user.institute().fetch();
+        // const userInfo = { id: user.id, email: user.email };
+        // const rider = await user.rider().fetch();
+        return response.redirect(`http://beta.skillchamps.net/dashboard/home?token=${token.token}&type=${token.type}`)
+        // return {
+        //   ...token,
+        //   user: userInfo,
+        //   rider,
+        //   eventsOnManagement: events,
+        //   institute,
+        // };
       }
     } catch (error) {
       console.log(error);
