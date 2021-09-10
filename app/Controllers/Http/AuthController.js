@@ -39,7 +39,7 @@ class AuthController {
         // const institute = await user.institute().fetch();
         // const userInfo = { id: user.id, email: user.email };
         // const rider = await user.rider().fetch();
-        return token
+        // return token
         response.redirect(`http://beta.skillchamps.net/dashboard/home?token=${token.token}&type=${token.type}`)
         // return {
         //   ...token,
@@ -51,7 +51,7 @@ class AuthController {
       }
     } catch (error) {
       console.log(error);
-      return "Unable to authenticate. Try again later";
+      return "Unable to authenticate. Try again later "+ error.message;
     }
   }
 
