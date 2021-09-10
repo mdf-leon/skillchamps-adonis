@@ -16,6 +16,7 @@ class AuthController {
     // const token = await auth.attempt(email, password);
     try {
       const user = await User.find(auth.user.id);
+      const token = await auth.generate(user);
       const events = await user.eventsOnManagement().fetch();
       const institute = await user.institute().fetch();
       const userInfo = { id: user.id, email: user.email };
