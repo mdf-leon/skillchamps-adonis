@@ -13,7 +13,7 @@ class AuthController {
   async googleR({ ally }) {
     await ally.driver("google").redirect();
   }
-  async googleCB({ ally, auth }) {
+  async googleCB({ ally, auth, response }) {
     try {
       const gUser = await ally.driver("google").getUser();
 
