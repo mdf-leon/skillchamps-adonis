@@ -71,7 +71,7 @@ class AuthController {
         // const rider = await user.rider().fetch();
         // return token
         response.redirect(
-          `http://beta.skillchamps.net/LoginRedirect?token=${token.token}&type=${token.type}`
+          `https://beta.skillchamps.net/LoginRedirect?token=${token.token}&type=${token.type}`
         );
         // return {
         //   ...token,
@@ -125,7 +125,7 @@ class AuthController {
         // const userInfo = { id: user.id, email: user.email };
         // const rider = await user.rider().fetch();
         response.redirect(
-          `http://beta.skillchamps.net/LoginRedirect?token=${token.token}&type=${token.type}`
+          `https://beta.skillchamps.net/LoginRedirect?token=${token.token}&type=${token.type}`
         );
         // return {
         //   ...token,
