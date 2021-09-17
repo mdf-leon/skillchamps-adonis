@@ -137,7 +137,7 @@ class AuthController {
       }
     } catch (error) {
       console.log(error);
-      return "Unable to authenticate. Try again later";
+      return "Unable to authenticate. Try again later " + error.message;
     }
   }
 
