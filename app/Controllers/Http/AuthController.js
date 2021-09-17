@@ -90,7 +90,7 @@ class AuthController {
   async facebookR({ ally }) {
     await ally.driver("facebook").redirect();
   }
-  async facebookCB({ ally, auth }) {
+  async facebookCB({ ally, auth, response }) {
     try {
       const gUser = await ally.driver("facebook").getUser();
 
