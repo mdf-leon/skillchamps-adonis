@@ -17,7 +17,8 @@ var _ = require("lodash");
 
 class ScoreController {
   async show({ request, response, auth, params }) {
-    const { trial_id, rider_id } = request.get();
+    try {
+      const { trial_id, rider_id } = request.get();
     let qsearch = { id: params.id };
     if (params.id == "new")
       qsearch = { trial_id, rider_id }; // remover esta gambi
@@ -30,6 +31,10 @@ class ScoreController {
       return response.status(400).json({ bad_request: "Score nao existe" });
     }
     return score.toJSON();
+    } catch (error) {
+      return {message: error.message, trial_id, rider_id, qsearch, params}
+    }
+    
   }
 
   async destroy({ request, response, auth, params }) {
