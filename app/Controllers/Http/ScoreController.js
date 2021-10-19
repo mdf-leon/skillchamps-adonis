@@ -17,9 +17,10 @@ var _ = require("lodash");
 
 class ScoreController {
   async show({ request, response, auth, params }) {
+    const { trial_id, rider_id } = request.get();
     let qsearch = { id: params.id };
     if (params.id == "new")
-      qsearch = { trial_id: request.trial_id, rider_id: request.rider_id }; // remover esta gambi
+      qsearch = { trial_id, rider_id }; // remover esta gambi
     let score = await Score.query()
       .where(qsearch)
       .with("penalties.penaltyConf")
