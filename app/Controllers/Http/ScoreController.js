@@ -82,6 +82,7 @@ class ScoreController {
     return score.toJSON();
   }
 
+  //LEGACY - LOOK: ManageEventController.js -> addScore()
   async store({ request, response, auth }) {
     // to create a score
     const data = request.only([
@@ -228,7 +229,10 @@ class ScoreController {
     let penaltyTime = 0;
 
     for (let penalty of data.penalties) {
-      pens.push(await Penalty.create({ ...penalty, score_id: res.id }));
+      const peny = await Penalty.create({ ...penalty, score_id: res.id })
+      if (penalty.quantity > 0) {
+        pens.push(peny);
+      }
       const pc = await PenaltyConf.findOrFail(penalty.penalty_conf_id);
       penaltyTime += (penalty.quantity || 0) * pc.time_penalty;
     }
@@ -237,9 +241,30 @@ class ScoreController {
     let bonusTime = 0;
 
     for (let bonus of data.bonuses) {
-      bons.push(await Bonus.create({ ...bonus, score_id: res.id }));
-      const bc = await BonusConf.findOrFail(bonus.bonus_conf_id);
-      bonusTime += (bonus.quantity || 0) * bc.time_bonus;
+      const bc = await BonusConf.findOrFail(bonus.bonus_conf_id)
+      // console.log(bc.toJSON());
+      if (bc.condition === "trial_true") {
+        const score = await Score.findBy({ rider_id: data.rider_id, trial_id: bc.condition_trial_id })
+        // console.log(score);
+        if (score && score.time_total == 1) {
+          bons.push(await Bonus.create({ ...bonus, score_id: res.id, quantity: 1 }))
+          bonusTime += bc.time_bonus
+        }
+      } if (bc.condition === "no_penalties" && !pens[0]) {
+        bons.push(await Bonus.create({ ...bonus, score_id: res.id, quantity: 1 }))
+        bonusTime += bc.time_bonus
+      } else if (bc.condition === "unconditioned") {
+        bons.push(await Bonus.create({ ...bonus, score_id: res.id }))
+        bonusTime += (bonus.quantity || 0) * bc.time_bonus
+      }
+    }
+    for (let bonus of data.bonuses) {
+      const bc = await BonusConf.findOrFail(bonus.bonus_conf_id)
+      const noZeroBonus = bons.filter(bon => bon.quantity > 0)
+      if (bc.condition === "full_bonus" && noZeroBonus.length === (data.bonuses.length - 1)) {
+        bons.push(await Bonus.create({ ...bonus, score_id: res.id, quantity: 1 }))
+        bonusTime += bc.time_bonus
+      }
     }
 
     res.time_total = Number(res.time) + Number(penaltyTime) - Number(bonusTime);

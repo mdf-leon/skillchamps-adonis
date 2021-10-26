@@ -2,5 +2,27 @@
   "files.exclude": {},
   "cSpell.words": [
     "longtext"
+  ],
+  "favorites.resources": [
+    {
+      "filePath": "database\\migrations\\1503250034279_user.js",
+      "group": "Default"
+    },
+    {
+      "filePath": "app\\Controllers\\Http\\UserController.js",
+      "group": "Default"
+    },
+    {
+      "filePath": "start\\routes.js",
+      "group": "Default"
+    },
+    {
+      "filePath": "app\\Models\\User.js",
+      "group": "Default"
+    },
+    {
+      "filePath": "database\\seeds",
+      "group": "Default"
+    }
   ]
 }
